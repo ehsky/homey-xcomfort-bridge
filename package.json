@@ -1,0 +1,18 @@
+{
+  "name": "homey-xcomfort-bridge",
+  "version": "0.1.0",
+  "description": "xComfort Bridge integration with multiple drivers (bridge, dimming actuator, room)",
+  "main": "app.js",
+  "scripts": {
+    "start": "homey app run",
+    "test": "echo \"No tests yet\""
+  },
+  "keywords": ["xcomfort", "bridge", "dimming", "room", "automation"],
+  "author": "Erlend",
+  "license": "MIT",
+  "dependencies": {
+    "ws": "^8.0.0",
+    "node-forge": "^1.3.1"
+  },
+  "devDependencies": {}
+}

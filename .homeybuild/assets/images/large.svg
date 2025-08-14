@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1000" height="700" viewBox="0 0 1000 700" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f8f9fa;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e9ecef;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="deviceGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffd43b;stop-opacity:0.8" />
+      <stop offset="100%" style="stop-color:#fab005;stop-opacity:0.3" />
+    </linearGradient>
+    <radialGradient id="lightGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#ffd43b;stop-opacity:0.6" />
+      <stop offset="100%" style="stop-color:#ffd43b;stop-opacity:0" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1000" height="700" fill="url(#bgGrad)"/>
+  
+  <!-- Modern home interior scene -->
+  <!-- Floor -->
+  <rect x="0" y="500" width="1000" height="200" fill="#e8e4e0"/>
+  
+  <!-- Wall -->
+  <rect x="0" y="0" width="1000" height="500" fill="#f8f6f3"/>
+  
+  <!-- xComfort Bridge device (center) -->
+  <g transform="translate(400, 280)">
+    <!-- Device body -->
+    <rect x="0" y="0" width="200" height="80" rx="8" fill="#2c3e50" stroke="#34495e" stroke-width="2"/>
+    
+    <!-- LED indicators -->
+    <circle cx="30" cy="25" r="8" fill="#27ae60" opacity="0.9"/>
+    <circle cx="60" cy="25" r="8" fill="#3498db" opacity="0.9"/>
+    <circle cx="90" cy="25" r="8" fill="#e74c3c" opacity="0.7"/>
+    
+    <!-- Ethernet port -->
+    <rect x="140" y="20" width="40" height="20" rx="3" fill="#34495e" stroke="#2c3e50" stroke-width="1"/>
+    <rect x="145" y="25" width="30" height="10" rx="2" fill="#f39c12"/>
+    
+    <!-- Brand text -->
+    <text x="100" y="60" text-anchor="middle" fill="#ecf0f1" font-family="Arial, sans-serif" font-size="14" font-weight="bold">xComfort Bridge</text>
+    
+    <!-- Connection glow -->
+    <circle cx="100" cy="40" r="120" fill="url(#lightGlow)" opacity="0.4"/>
+  </g>
+  
+  <!-- Connected devices around the bridge -->
+  
+  <!-- Smart lights -->
+  <g transform="translate(150, 200)">
+    <!-- Light fixture -->
+    <circle cx="0" cy="0" r="25" fill="url(#deviceGlow)" opacity="0.8"/>
+    <circle cx="0" cy="0" r="15" fill="#ffd43b"/>
+    <path d="M-10,-25 L10,-25 L8,-40 L-8,-40 Z" fill="#95a5a6"/>
+    <!-- Wireless indicator -->
+    <path d="M-15,-15 Q0,-25 15,-15" stroke="#3498db" stroke-width="2" fill="none" opacity="0.7"/>
+    <path d="M-10,-10 Q0,-15 10,-10" stroke="#3498db" stroke-width="2" fill="none" opacity="0.9"/>
+  </g>
+  
+  <g transform="translate(750, 180)">
+    <!-- Light fixture -->
+    <circle cx="0" cy="0" r="25" fill="url(#deviceGlow)" opacity="0.8"/>
+    <circle cx="0" cy="0" r="15" fill="#ffd43b"/>
+    <path d="M-10,-25 L10,-25 L8,-40 L-8,-40 Z" fill="#95a5a6"/>
+    <!-- Wireless indicator -->
+    <path d="M-15,-15 Q0,-25 15,-15" stroke="#3498db" stroke-width="2" fill="none" opacity="0.7"/>
+    <path d="M-10,-10 Q0,-15 10,-10" stroke="#3498db" stroke-width="2" fill="none" opacity="0.9"/>
+  </g>
+  
+  <!-- Smart switches -->
+  <g transform="translate(100, 400)">
+    <rect x="0" y="0" width="60" height="60" rx="8" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="2"/>
+    <rect x="10" y="10" width="40" height="20" rx="10" fill="#27ae60"/>
+    <circle cx="45" cy="20" r="8" fill="#2ecc71"/>
+    <!-- Wireless indicator -->
+    <path d="M15,35 Q30,25 45,35" stroke="#3498db" stroke-width="1.5" fill="none" opacity="0.7"/>
+  </g>
+  
+  <g transform="translate(800, 420)">
+    <rect x="0" y="0" width="60" height="60" rx="8" fill="#ecf0f1" stroke="#bdc3c7" stroke-width="2"/>
+    <rect x="10" y="10" width="40" height="20" rx="10" fill="#e74c3c"/>
+    <circle cx="15" cy="20" r="8" fill="#c0392b"/>
+    <!-- Wireless indicator -->
+    <path d="M15,35 Q30,25 45,35" stroke="#3498db" stroke-width="1.5" fill="none" opacity="0.7"/>
+  </g>
+  
+  <!-- Connection lines -->
+  <path d="M250,240 Q350,260 500,320" stroke="#3498db" stroke-width="3" fill="none" opacity="0.6" stroke-dasharray="5,5">
+    <animate attributeName="stroke-dashoffset" values="0;10" dur="2s" repeatCount="indefinite"/>
+  </path>
+  
+  <path d="M650,320 Q700,260 750,220" stroke="#3498db" stroke-width="3" fill="none" opacity="0.6" stroke-dasharray="5,5">
+    <animate attributeName="stroke-dashoffset" values="0;10" dur="2s" repeatCount="indefinite"/>
+  </path>
+  
+  <path d="M160,440 Q300,380 450,340" stroke="#3498db" stroke-width="3" fill="none" opacity="0.6" stroke-dasharray="5,5">
+    <animate attributeName="stroke-dashoffset" values="0;10" dur="2s" repeatCount="indefinite"/>
+  </path>
+  
+  <path d="M550,340 Q700,380 800,450" stroke="#3498db" stroke-width="3" fill="none" opacity="0.6" stroke-dasharray="5,5">
+    <animate attributeName="stroke-dashoffset" values="0;10" dur="2s" repeatCount="indefinite"/>
+  </path>
+  
+  <!-- Homey Hub -->
+  <g transform="translate(50, 550)">
+    <circle cx="0" cy="0" r="40" fill="#00e5ff" opacity="0.9"/>
+    <circle cx="0" cy="0" r="25" fill="#00acc1"/>
+    <text x="0" y="5" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="20" font-weight="bold">H</text>
+    <!-- Connection to bridge -->
+    <path d="M40,0 Q200,-50 350,-40" stroke="#00e5ff" stroke-width="4" fill="none" opacity="0.7" stroke-dasharray="8,4">
+      <animate attributeName="stroke-dashoffset" values="0;12" dur="1.5s" repeatCount="indefinite"/>
+    </path>
+  </g>
+  
+  <!-- Title text -->
+  <text x="500" y="100" text-anchor="middle" fill="#2c3e50" font-family="Arial, sans-serif" font-size="48" font-weight="bold">xComfort Bridge</text>
+  <text x="500" y="140" text-anchor="middle" fill="#7f8c8d" font-family="Arial, sans-serif" font-size="24">Connect your Eaton xComfort devices to Homey</text>
+</svg>

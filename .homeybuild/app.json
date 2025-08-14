@@ -1,0 +1,78 @@
+{
+  "id": "com.ehSky.homey-xcomfort-bridge",
+  "version": "1.0.0",
+  "compatibility": ">=5.0.0",
+  "sdk": 3,
+  "name": {
+    "en": "xComfort Bridge"
+  },
+  "description": {
+    "en": "Integrates xComfort Bridge devices with Homey Pro (dimming actuator, room)"
+  },
+  "category": [
+    "lights"
+  ],
+  "permissions": [],
+  "author": {
+    "name": "Erlend Hansen",
+    "email": "your-email@example.com"
+  },
+  "contributors": {
+    "developers": [
+      {
+        "name": "Erlend Hansen",
+        "email": "your-email@example.com"
+      }
+    ]
+  },
+  "drivers": [
+    {
+      "id": "xcomfort-dimming-actuator",
+      "name": {
+        "en": "Dimming Actuator"
+      },
+      "class": "light",
+      "capabilities": [
+        "onoff",
+        "dim"
+      ],
+      "pair": [
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ]
+    },
+    {
+      "id": "xcomfort-room",
+      "name": {
+        "en": "Room"
+      },
+      "class": "light",
+      "capabilities": [
+        "onoff",
+        "dim"
+      ],
+      "pair": [
+        {
+          "id": "list_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_devices"
+          }
+        },
+        {
+          "id": "add_devices",
+          "template": "add_devices"
+        }
+      ]
+    }
+  ]
+}
