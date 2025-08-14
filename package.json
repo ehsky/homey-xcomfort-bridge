@@ -5,11 +5,26 @@
   "main": "app.js",
   "scripts": {
     "start": "homey app run",
-    "test": "echo \"No tests yet\""
+    "test": "echo \"No tests yet\"",
+    "dev": "homey app run --clean",
+    "build": "homey app build",
+    "validate": "homey app validate"
   },
-  "keywords": ["xcomfort", "bridge", "dimming", "room", "automation"],
-  "author": "Erlend",
+  "keywords": ["xcomfort", "bridge", "dimming", "room", "automation", "homey"],
+  "author": "Erlend Hansen",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ehsky/homey-xcomfort-bridge.git"
+  },
+  "homepage": "https://github.com/ehsky/homey-xcomfort-bridge#readme",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "xcomfort": {
+    "clientType": "shl-app",
+    "clientId": "c956e43f999f8004"
+  },
   "dependencies": {
     "ws": "^8.0.0",
     "node-forge": "^1.3.1"
