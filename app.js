@@ -1,12 +1,19 @@
 const Homey = require('homey');
 const XComfortConnection = require('./lib/XComfortConnection');
+const XComfortSceneManager = require('./lib/XComfortSceneManager');
 
 class App extends Homey.App {
   async onInit() {
     this.log('xComfort Bridge app initialized');
     
+    // Initialize scene manager
+    this.sceneManager = null;
+    
     // Initialize connection when settings are available
     await this.initConnection();
+    
+    // Register Flow actions
+    this.registerFlowActions();
     
     // Listen for settings changes
     this.homey.settings.on('set', async (key) => {
@@ -64,6 +71,9 @@ class App extends Homey.App {
         this.connection = new XComfortConnection(bridgeIp, authKey);
         await this.connection.init();
         this.log('xComfort connection initialized successfully');
+        
+        // Initialize scene manager when connection is ready
+        this.sceneManager = new XComfortSceneManager(this.connection);
         
         // Log discovered devices and rooms
         const devices = this.connection.getDevices();
@@ -160,6 +170,71 @@ class App extends Homey.App {
       }
     } catch (error) {
       this.error('Periodic refresh failed:', error);
+    }
+  }
+
+  registerFlowActions() {
+    // Register scene activation Flow action by name
+    const activateSceneCard = this.homey.flow.getActionCard('activate_scene');
+    
+    activateSceneCard.registerRunListener(this.onFlowActionActivateScene.bind(this));
+    
+    // Register autocomplete listener for scene names
+    activateSceneCard.registerArgumentAutocompleteListener('scene_name', async (query) => {
+      this.log(`Autocomplete request for scene name: "${query}"`);
+      
+      if (!this.sceneManager) {
+        this.log('Scene manager not initialized - returning empty list');
+        return [];
+      }
+      
+      try {
+        // Discover scenes first to ensure we have fresh data
+        await this.sceneManager.discoverScenes();
+        
+        // Filter scenes based on query
+        const filteredScenes = this.sceneManager.filterScenes(query);
+        
+        this.log(`Found ${filteredScenes.length} matching scenes for query "${query}"`);
+        
+        // Return results in format expected by Homey autocomplete
+        const autocompleteResults = filteredScenes.map(scene => ({
+          id: scene.id.toString(),
+          name: scene.name,
+          description: `Scene ID: ${scene.id}`
+        }));
+        
+        this.log('Autocomplete results:', JSON.stringify(autocompleteResults, null, 2));
+        return autocompleteResults;
+        
+      } catch (error) {
+        this.error('Error in scene autocomplete:', error);
+        return [];
+      }
+    });
+    
+    this.log('Flow actions registered');
+  }
+
+  async onFlowActionActivateScene(args) {
+    // Debug: Log the raw args to understand the structure
+    this.log('Flow action args received:', JSON.stringify(args, null, 2));
+    
+    // Extract the scene name from the autocomplete selection
+    const sceneName = args.scene_name.name || args.scene_name;
+    this.log(`Flow action: Activate scene by name "${sceneName}"`);
+    
+    if (!this.sceneManager) {
+      throw new Error('Scene manager not initialized - xComfort Bridge may not be connected');
+    }
+    
+    try {
+      await this.sceneManager.activateScene(sceneName);
+      this.log(`Successfully activated scene "${sceneName}"`);
+      return true;
+    } catch (error) {
+      this.error(`Failed to activate scene "${sceneName}":`, error);
+      throw error;
     }
   }
 }

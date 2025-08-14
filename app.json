@@ -18,6 +18,31 @@
   },
   "brandColor": "#00A651",
   "permissions": [],
+  "flow": {
+    "actions": [
+      {
+        "id": "activate_scene",
+        "title": {
+          "en": "Activate xComfort Scene by Name"
+        },
+        "titleFormatted": {
+          "en": "Activate scene [[scene_name]]"
+        },
+        "args": [
+          {
+            "type": "autocomplete",
+            "name": "scene_name",
+            "title": {
+              "en": "Scene Name"
+            },
+            "placeholder": {
+              "en": "Select a scene from your xComfort Bridge"
+            }
+          }
+        ]
+      }
+    ]
+  },
   "author": {
     "name": "Erlend Hansen",
     "email": "h.erlend96@gmail.com"
