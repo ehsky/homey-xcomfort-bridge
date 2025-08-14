@@ -1,5 +1,9 @@
 # Homey xComfort Bridge App
 
+[![Homey App](https://img.shields.io/badge/Homey-App-blue)](https://homey.app)
+[![Eaton xComfort](https://img.shields.io/badge/Eaton-xComfort-green)](https://www.eaton.com)
+[![SDK Version](https://img.shields.io/badge/Homey%20SDK-v3-orange)](https://apps.developer.homey.app)
+
 This Homey app integrates Eaton xComfort Bridge devices with Homey Pro, providing full control over dimming actuators and room-level lighting management.
 
 ## Features
@@ -27,6 +31,7 @@ This Homey app integrates Eaton xComfort Bridge devices with Homey Pro, providin
 - **Temperature Polling**: Automatic temperature data updates every 2-4 minutes
 
 ## Project Structure
+
 - `/drivers/xcomfort-dimming-actuator/` - Driver for dimming actuators
 - `/drivers/xcomfort-room/` - Driver for room-level control
 - `/lib/XComfortConnection.js` - Shared connection logic to xComfort Bridge

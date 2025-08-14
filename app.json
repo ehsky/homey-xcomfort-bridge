@@ -1,27 +1,32 @@
 {
   "id": "com.ehSky.homey-xcomfort-bridge",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "name": {
-    "en": "xComfort Bridge"
+    "en": "Eaton xComfort Bridge"
   },
   "description": {
-    "en": "Integrates xComfort Bridge devices with Homey Pro (dimming actuator, room)"
+    "en": "Smart home lighting control with intelligent room management through the Eaton xComfort Bridge."
   },
   "category": [
     "lights"
   ],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png"
+  },
+  "brandColor": "#00A651",
   "permissions": [],
   "author": {
     "name": "Erlend Hansen",
-    "email": "your-email@example.com"
+    "email": "h.erlend96@gmail.com"
   },
   "contributors": {
     "developers": [
       {
         "name": "Erlend Hansen",
-        "email": "your-email@example.com"
+        "email": "h.erlend96@gmail.com"
       }
     ]
   },
@@ -34,7 +39,8 @@
       "class": "light",
       "capabilities": [
         "onoff",
-        "dim"
+        "dim",
+        "measure_temperature"
       ],
       "pair": [
         {
@@ -58,7 +64,11 @@
       "class": "light",
       "capabilities": [
         "onoff",
-        "dim"
+        "dim",
+        "meter_power",
+        "alarm_contact.windows",
+        "alarm_contact.doors",
+        "alarm_motion"
       ],
       "pair": [
         {

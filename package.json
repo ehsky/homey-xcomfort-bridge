@@ -1,6 +1,6 @@
 {
   "name": "homey-xcomfort-bridge",
-  "version": "0.1.0",
+  "version": "1.0.1",
   "description": "xComfort Bridge integration with multiple drivers (bridge, dimming actuator, room)",
   "main": "app.js",
   "scripts": {
@@ -23,7 +23,8 @@
   },
   "xcomfort": {
     "clientType": "shl-app",
-    "clientId": "c956e43f999f8004"
+    "clientId": "c956e43f999f8004",
+    "clientVersion": "3.0.0"
   },
   "dependencies": {
     "ws": "^8.0.0",
