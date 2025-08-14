@@ -2,6 +2,7 @@
 
 [![Homey App](https://img.shields.io/badge/Homey-App-blue)](https://homey.app)
 [![Eaton xComfort](https://img.shields.io/badge/Eaton-xComfort-green)](https://www.eaton.com)
+[![Bridge Firmware](https://img.shields.io/badge/Bridge%20FW-4.01-brightgreen)](https://www.eaton.com)
 [![SDK Version](https://img.shields.io/badge/Homey%20SDK-v3-orange)](https://apps.developer.homey.app)
 
 This Homey app integrates Eaton xComfort Bridge devices with Homey Pro, providing full control over dimming actuators and room-level lighting management.
