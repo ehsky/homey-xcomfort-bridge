@@ -41,7 +41,7 @@ class App extends Homey.App {
     
     // Close connection if exists
     if (this.connection) {
-      // TODO: Add proper connection cleanup
+      this.connection.cleanup();
       this.connection = null;
     }
   }
@@ -65,7 +65,7 @@ class App extends Homey.App {
         // Close existing connection if any
         if (this.connection) {
           this.log('Closing existing connection');
-          // TODO: Add proper connection cleanup
+          this.connection.cleanup();
         }
         
         this.connection = new XComfortConnection(bridgeIp, authKey);
