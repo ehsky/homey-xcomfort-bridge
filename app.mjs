@@ -1,6 +1,6 @@
-const Homey = require('homey');
-const XComfortConnection = require('./lib/XComfortConnection');
-const XComfortSceneManager = require('./lib/XComfortSceneManager');
+import Homey from 'homey';
+import XComfortConnection from './lib/XComfortConnection.mjs';
+import XComfortSceneManager from './lib/XComfortSceneManager.mjs';
 
 class App extends Homey.App {
   async onInit() {
@@ -239,4 +239,4 @@ class App extends Homey.App {
   }
 }
 
-module.exports = App;
+export default App;

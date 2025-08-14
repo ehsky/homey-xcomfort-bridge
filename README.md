@@ -35,8 +35,8 @@ This Homey app integrates Eaton xComfort Bridge devices with Homey Pro, providin
 
 - `/drivers/xcomfort-dimming-actuator/` - Driver for dimming actuators
 - `/drivers/xcomfort-room/` - Driver for room-level control
-- `/lib/XComfortConnection.js` - Shared connection logic to xComfort Bridge
-- `app.js` - Main app coordinator
+- `/lib/XComfortConnection.mjs` - Shared connection logic to xComfort Bridge
+- `app.mjs` - Main app coordinator
 - `package.json` - Node.js dependencies and app metadata
 
 ## Setup Instructions

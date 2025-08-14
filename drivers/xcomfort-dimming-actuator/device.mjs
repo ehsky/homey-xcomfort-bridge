@@ -1,4 +1,4 @@
-const Homey = require('homey');
+import Homey from 'homey';
 
 class DimmingActuatorDevice extends Homey.Device {
   async onInit() {
@@ -217,4 +217,4 @@ class DimmingActuatorDevice extends Homey.Device {
   }
 }
 
-module.exports = DimmingActuatorDevice;
+export default DimmingActuatorDevice;
