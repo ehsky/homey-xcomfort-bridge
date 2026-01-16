@@ -39,6 +39,12 @@ class App extends Homey.App {
       this.pendingRefreshTimeout = null;
     }
     
+    // Clean up connection retry timeout
+    if (this.connectionRetryTimeout) {
+      clearTimeout(this.connectionRetryTimeout);
+      this.connectionRetryTimeout = null;
+    }
+    
     // Close connection if exists
     if (this.connection) {
       this.connection.cleanup();
@@ -90,11 +96,36 @@ class App extends Homey.App {
       } catch (error) {
         this.error('Failed to initialize xComfort connection:', error.message);
         this.connection = null;
+        
+        // Schedule retry for initial connection failure
+        this.scheduleConnectionRetry();
       }
     } else {
       this.log('Bridge IP or auth key not configured yet');
       this.connection = null;
     }
+  }
+
+  /**
+   * Schedule a retry for initial connection failures
+   * This allows the app to recover if the bridge comes online later
+   */
+  scheduleConnectionRetry() {
+    // Clear any existing retry timer
+    if (this.connectionRetryTimeout) {
+      clearTimeout(this.connectionRetryTimeout);
+    }
+    
+    const retryDelay = 60000; // Retry every 60 seconds
+    this.log(`Scheduling connection retry in ${retryDelay / 1000} seconds...`);
+    
+    this.connectionRetryTimeout = setTimeout(async () => {
+      this.connectionRetryTimeout = null;
+      if (!this.isConnected()) {
+        this.log('Retrying xComfort connection...');
+        await this.initConnection();
+      }
+    }, retryDelay);
   }
 
   getConnection() {
