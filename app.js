@@ -62,6 +62,12 @@ class App extends Homey.App {
       this.periodicRefreshInterval = null;
     }
     
+    // Cancel any pending connection retry
+    if (this.connectionRetryTimeout) {
+      clearTimeout(this.connectionRetryTimeout);
+      this.connectionRetryTimeout = null;
+    }
+    
     // Reset initial refresh flag
     this.initialRefreshDone = false;
     
