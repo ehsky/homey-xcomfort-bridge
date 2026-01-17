@@ -154,7 +154,11 @@ export class MessageHandler {
     // Handle STATE_UPDATE
     if (msg.type_int === MESSAGE_TYPES.STATE_UPDATE) {
       console.log('[MessageHandler] Device state update');
-      this.processStateUpdate(msg.payload as { item?: StateUpdateItem[] });
+      this.processStateUpdate(msg.payload as { item?: StateUpdateItem[] }, {
+        typeInt: msg.type_int,
+        mc: msg.mc,
+        ref: msg.ref,
+      });
       return true;
     }
 
@@ -239,7 +243,10 @@ export class MessageHandler {
   /**
    * Process state update messages
    */
-  private processStateUpdate(payload: { item?: StateUpdateItem[] }): void {
+  private processStateUpdate(
+    payload: { item?: StateUpdateItem[] },
+    msgMeta?: { typeInt?: number; mc?: number; ref?: number }
+  ): void {
     try {
       const itemCount = payload?.item?.length ?? 0;
       console.log(`[MessageHandler] Processing state update with ${itemCount} items`);
@@ -251,6 +258,16 @@ export class MessageHandler {
 
         payload.item.forEach((item) => {
           if (item.deviceId) {
+            const device = this.deviceStateManager.getDevice(String(item.deviceId));
+            if (device?.devType === 220) {
+              console.log(
+                `[MessageHandler] Input event raw item: ${JSON.stringify(item)}`
+              );
+              console.log(
+                `[MessageHandler] Input event meta: deviceId=${item.deviceId}, type=${msgMeta?.typeInt ?? 'n/a'}, mc=${msgMeta?.mc ?? 'n/a'}, ref=${msgMeta?.ref ?? 'n/a'}, ts=${Date.now()}`
+              );
+            }
+
             if (!deviceUpdates.has(item.deviceId)) {
               deviceUpdates.set(item.deviceId, {});
             }
