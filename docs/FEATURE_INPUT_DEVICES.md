@@ -3,6 +3,12 @@
 ## Goal
 Safely identify and expose input-only devices (e.g., button/rocker controllers) without assuming any actuator capabilities. Prioritize correctness, clarity, and observability over feature richness.
 
+## Status
+- Step 1: Complete (input-only classification, devType=220 pairing filter).
+- Step 2: Complete (discovery logging with full descriptors + room association).
+- Step 3: Complete (raw event logging + metadata for devType=220).
+- Step 4: Pending (awaiting user interaction payloads).
+
 ---
 
 ## Step 1: Classify the device conservatively
