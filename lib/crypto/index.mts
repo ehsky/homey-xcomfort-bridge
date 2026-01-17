@@ -20,10 +20,10 @@ export {
   isValidContext,
   type EncryptionContext,
   type EncryptionConfig,
-} from './Encryption.js';
+} from './Encryption.mjs';
 
 // Hash utilities
-export { authHash, generateSalt, generateSecureRandom } from './Hash.js';
+export { authHash, generateSalt, generateSecureRandom } from './Hash.mjs';
 
 // RSA key exchange
 export {
@@ -31,4 +31,4 @@ export {
   encryptSecret,
   isValidPublicKey,
   type RSAPublicKey,
-} from './KeyExchange.js';
+} from './KeyExchange.mjs';

@@ -6,8 +6,8 @@
  */
 
 import forge from 'node-forge';
-import { ENCRYPTION_CONFIG } from '../types.js';
-import type { EncryptionContext } from './Encryption.js';
+import { ENCRYPTION_CONFIG } from '../types.mjs';
+import type { EncryptionContext } from './Encryption.mjs';
 
 /**
  * RSA public key type from node-forge

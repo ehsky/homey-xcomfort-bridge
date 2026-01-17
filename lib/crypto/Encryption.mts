@@ -6,7 +6,7 @@
  */
 
 import crypto from 'node:crypto';
-import { ENCRYPTION_CONFIG } from '../types.js';
+import { ENCRYPTION_CONFIG } from '../types.mjs';
 
 /**
  * Configuration for the encryption module

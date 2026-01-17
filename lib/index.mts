@@ -28,7 +28,7 @@ export type {
   EncryptionConfig,
   ProtocolTimingConfig,
   InfoTextCode,
-} from './types.js';
+} from './types.mjs';
 
 // Constants
 export {
@@ -37,7 +37,7 @@ export {
   PROTOCOL_TIMING,
   DIM_LIMITS,
   INFO_TEXT_CODES,
-} from './types.js';
+} from './types.mjs';
 
 // Utilities
 export {
@@ -46,9 +46,9 @@ export {
   isValidXComfortDimValue,
   isValidHomeyDimValue,
   clampXComfortDimValue,
-} from './utils/index.js';
+} from './utils/index.mjs';
 
 // Crypto
-export * from './crypto/index.js';
+export * from './crypto/index.mjs';
 // TODO: Export XComfortBridge when implemented
 // export { XComfortBridge } from './connection/index.js';

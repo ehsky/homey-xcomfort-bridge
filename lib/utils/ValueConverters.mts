@@ -5,7 +5,7 @@
  * xComfort uses 1-99 range (0 means off, 1 is minimum, 99 is maximum)
  */
 
-import { DIM_LIMITS } from '../types.js';
+import { DIM_LIMITS } from '../types.mjs';
 
 /**
  * Convert Homey dim value (0-1) to xComfort dim value (0 or 1-99)

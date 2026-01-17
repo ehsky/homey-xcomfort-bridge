@@ -1,4 +1,4 @@
-const Homey = require('homey');
+import Homey from 'homey';
 
 class RoomDevice extends Homey.Device {
   async onInit() {
@@ -223,4 +223,4 @@ class RoomDevice extends Homey.Device {
   }
 }
 
-module.exports = RoomDevice;
+export default RoomDevice;

@@ -1,4 +1,4 @@
-const Homey = require('homey');
+import Homey from 'homey';
 
 class RoomDriver extends Homey.Driver {
   onInit() {
@@ -53,4 +53,4 @@ class RoomDriver extends Homey.Driver {
   }
 }
 
-module.exports = RoomDriver;
+export default RoomDriver;

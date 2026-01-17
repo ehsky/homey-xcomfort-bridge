@@ -2,8 +2,7 @@
   "name": "homey-xcomfort-bridge",
   "version": "1.0.1",
   "description": "xComfort Bridge integration with multiple drivers (bridge, dimming actuator, room)",
-  "type": "module",
-  "main": "app.js",
+  "main": "app.mjs",
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",

@@ -8,4 +8,4 @@ export {
   isValidXComfortDimValue,
   isValidHomeyDimValue,
   clampXComfortDimValue,
-} from './ValueConverters.js';
+} from './ValueConverters.mjs';

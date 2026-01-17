@@ -43,16 +43,45 @@ const __dirname = dirname(__filename);
 
 ### 1.3 ESM (ECMAScript Modules)
 
-**Required: TypeScript with ESM output**
+**Homey's Official ESM Approach**
 
-Homey supports both `.mjs` and compiled TypeScript. We use TypeScript for type safety.
+> ⚠️ **Important:** Homey recommends using `.mjs` file extensions for ESM, NOT `"type": "module"` in package.json. This avoids conflicts with CommonJS dependencies.
 
-```typescript
-// ✅ Correct TypeScript/ESM syntax
+**Two supported approaches:**
+
+1. **File extensions (Recommended):** Use `.mjs` for JavaScript, `.mts` for TypeScript
+2. **package.json type:** Add `"type": "module"` (can cause issues with dependencies)
+
+**We use approach #1** - file extensions:
+
+| Source File | Output File | Notes |
+|-------------|-------------|-------|
+| `app.mjs` | `app.mjs` | Main entry point |
+| `device.mjs` | `device.mjs` | Driver devices |
+| `lib/types.mts` | `lib/types.mjs` | TypeScript → ESM output |
+
+**package.json configuration:**
+```json
+{
+  "main": "app.mjs",
+  // NO "type": "module" - let file extensions determine module type
+}
+```
+
+**app.json compatibility:**
+```json
+{
+  "sdk": 3,
+  "compatibility": ">=12.0.1"  // ESM requires Homey v12.0.1+
+}
+```
+
+```javascript
+// ✅ Correct ESM syntax (in .mjs file)
 import Homey from 'homey';
 
 class MyApp extends Homey.App {
-  async onInit(): Promise<void> {
+  async onInit() {
     this.log('App initialized');
   }
 }
@@ -68,9 +97,11 @@ module.exports = MyApp;
 
 **ESM Gotchas:**
 - Cannot use `require()` - use `import` or dynamic `import()`
+- Cannot use `module.exports` - use `export default`
 - Top-level `await` is supported
 - All ESM modules run in strict mode by default
-- Import from compiled `.js` files, not `.ts` files
+- TypeScript `.mts` files must import using `.mjs` extension (the output extension)
+- No `__dirname` or `__filename` - use `import.meta.url` workaround
 
 ---
 
@@ -106,40 +137,56 @@ module.exports = MyApp;
 }
 ```
 
-**Project Structure with TypeScript:**
+**Project Structure with TypeScript + ESM:**
+
+> **Note:** We use `.mts` extension for TypeScript files that should compile to ESM (`.mjs`).
+> Plain `.ts` files compile to CommonJS (`.js`), which causes issues with ESM-only Homey apps.
+
 ```
-├── src/
-│   ├── app.ts              # Source files
-│   ├── lib/
-│   └── drivers/
-├── dist/                    # Compiled output (gitignored except for publish)
+├── app.mjs                  # Main entry (ESM JavaScript)
+├── lib/
+│   ├── types.mts            # TypeScript → compiles to types.mjs
+│   ├── utils/
+│   │   └── ValueConverters.mts
+│   └── crypto/
+│       ├── Encryption.mts
+│       └── Hash.mts
+├── drivers/
+│   └── my-driver/
+│       ├── device.mjs       # ESM JavaScript
+│       └── driver.mjs
+├── .homeybuild/             # TypeScript output (used by Homey)
+├── tests/
+│   └── MyModule.test.mts    # Tests also use .mts
 ├── tsconfig.json
 └── package.json
 ```
 
-**package.json additions:**
+**package.json configuration:**
 ```json
 {
-  "type": "module",
-  "main": "dist/app.js",
+  "main": "app.mjs",
   "scripts": {
     "build": "tsc",
-    "watch": "tsc --watch",
-    "prestart": "npm run build",
-    "start": "homey app run",
-    "validate": "npm run build && homey app validate"
+    "build:watch": "tsc --watch",
+    "start": "npm run build && homey app run",
+    "dev": "npm run build && homey app run --clean",
+    "validate": "npm run build && homey app validate",
+    "test": "npm run build && node --test .homeybuild/tests/"
   },
   "devDependencies": {
-    "typescript": "^5.3.0",
+    "typescript": "^5.7.0",
     "@types/node": "^22.0.0",
-    "@types/homey": "npm:homey-apps-sdk-v3-types@^1.0.0"
+    "homey-apps-sdk-v3-types": "^0.3.8"
   }
 }
 ```
 
+> ⚠️ **No `"type": "module"`** - file extensions (`.mjs`/`.mts`) determine module type.
+
 **Type Definitions:**
-- Use `@types/homey` for Homey SDK types (via `homey-apps-sdk-v3-types`)
-- Create `src/lib/types.ts` for app-specific interfaces
+- Use `homey-apps-sdk-v3-types` for Homey SDK types
+- Create `lib/types.mts` for app-specific interfaces
 
 ---
 

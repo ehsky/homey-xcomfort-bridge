@@ -32,11 +32,28 @@ Suggested commit points:
 | Phase | Goal | Breaking? | Testable? | Est. Effort | Status |
 |-------|------|-----------|-----------|-------------|--------|
 | **0** | TypeScript infrastructure | No | Yes | 1-2 hours | ✅ Done |
-| **1** | Parallel TypeScript (new files only) | No | Yes | 2-3 hours | ⏳ Next |
+| **1** | ESM conversion + crypto extraction | Yes | Yes | 3-4 hours | ✅ Done |
 | **2** | Convert existing JS → TS (one file at a time) | No | Yes | 4-6 hours | |
 | **3** | Extract modules from XComfortConnection | No | Yes | 4-6 hours | |
-| **4** | Full TypeScript (remove all .js) | Yes | Yes | 2-3 hours | |
+| **4** | Full TypeScript (remove all .js/.mjs) | Yes | Yes | 2-3 hours | |
 | **5** | Polish & P1/P2 features | No | Yes | Ongoing | |
+
+---
+
+## ESM Lessons Learned
+
+> **Key Discovery:** Homey's official ESM approach uses `.mjs` file extensions, NOT `"type": "module"` in package.json.
+
+**What we tried that failed:**
+1. ❌ `"type": "module"` + `.js` files → `require is not defined`
+2. ❌ Dual exports (`export default` + `module.exports`) → `module is not defined`
+
+**What works:**
+- ✅ Use `.mjs` extension for JavaScript ESM files
+- ✅ Use `.mts` extension for TypeScript ESM files (compiles to `.mjs`)
+- ✅ No `"type": "module"` in package.json
+- ✅ `"main": "app.mjs"` in package.json
+- ✅ `"compatibility": ">=12.0.1"` in app.json (ESM requires Homey v12+)
 
 ---
 
@@ -48,12 +65,11 @@ Suggested commit points:
 
 - [x] Create `tsconfig.json`
 - [x] Update `package.json` with TypeScript scripts
-- [x] Add `"type": "module"` for ESM
-- [x] Create `lib/types.ts` with shared interfaces
-- [x] Create `lib/utils/ValueConverters.ts`
-- [x] Create barrel exports (`lib/index.ts`)
+- [x] Create `lib/types.mts` with shared interfaces
+- [x] Create `lib/utils/ValueConverters.mts`
+- [x] Create barrel exports (`lib/index.mts`)
 - [x] Update `.gitignore` for TypeScript outputs
-- [x] Add basic unit test (`tests/ValueConverters.test.ts`)
+- [x] Add basic unit test (`tests/ValueConverters.test.mts`)
 - [x] Verify `npm run build` compiles successfully
 - [x] Verify `npm test` runs successfully (23 tests passing)
 - [x] Create this migration plan document
@@ -81,38 +97,52 @@ git add -A && git commit -m "Phase 0: TypeScript infrastructure setup"
 
 ---
 
-## Phase 1: Parallel TypeScript
+## Phase 1: ESM Conversion + Crypto Extraction ✅ COMPLETE
 
-**Goal:** Write new code in TypeScript while keeping existing JS working.
+**Goal:** Convert to ESM using Homey's official `.mjs` approach and extract crypto modules.
 
-### Strategy
+### ESM Conversion
 
-The existing `.js` files continue to work unchanged.
-New TypeScript files are added alongside them.
-We import utilities from the new `dist/` output.
+- [x] Rename `app.js` → `app.mjs`
+- [x] Rename `lib/XComfortConnection.js` → `lib/XComfortConnection.mjs`
+- [x] Rename `lib/XComfortProtocol.js` → `lib/XComfortProtocol.mjs`
+- [x] Rename `lib/XComfortSceneManager.js` → `lib/XComfortSceneManager.mjs`
+- [x] Rename all driver files to `.mjs`
+- [x] Convert `require()` to `import` syntax in all files
+- [x] Convert `module.exports` to `export default`
+- [x] Update `package.json`: `"main": "app.mjs"` (no `"type": "module"`)
+- [x] Update `app.json`: `"compatibility": ">=12.0.1"`
+- [x] Verify `homey app run` connects successfully
 
-### Tasks
+### Crypto Module Extraction
 
-- [ ] Update `app.js` to import from `./dist/lib/index.js` for utilities
-- [ ] Verify app still runs: `homey app run`
-- [ ] Add TypeScript wrapper types for existing modules (`.d.ts` files)
-- [ ] Create `lib/crypto/Encryption.ts` (extract from XComfortConnection)
-- [ ] Create `lib/crypto/KeyExchange.ts` (extract from XComfortConnection)
-- [ ] Write tests for crypto modules
+- [x] Create `lib/crypto/Encryption.mts` (AES-256-CBC)
+- [x] Create `lib/crypto/Hash.mts` (authHash, generateSalt)
+- [x] Create `lib/crypto/KeyExchange.mts` (RSA public key handling)
+- [x] Create `lib/crypto/index.mts` (barrel export)
+- [x] Write tests for crypto modules (`tests/Crypto.test.mts`)
+- [x] Verify 48 tests pass
+
+### TypeScript File Extensions
+
+- [x] Rename all `.ts` files to `.mts` for ESM output
+- [x] Update all imports to use `.mjs` extension
+- [x] Verify TypeScript compiles to `.mjs` files
 
 ### Test Criteria
 
 ```bash
-npm run build      # Compiles all .ts files
-npm test           # All tests pass
-homey app run      # App starts, connects to bridge
-# Manual test: Control a dimmer via Homey app
+npm run build      # ✅ Compiles all .mts files to .mjs
+npm test           # ✅ 48 tests pass
+npm run lint       # ✅ No TypeScript errors
+homey app validate # ✅ Validates (except missing images)
+homey app run      # ✅ Connects to bridge, authenticates
 ```
 
 ### Commit Point
 
 ```bash
-git add -A && git commit -m "Phase 1: Parallel TypeScript with crypto extraction"
+git add -A && git commit -m "Phase 1: ESM conversion + crypto extraction"
 ```
 
 ---
@@ -298,8 +328,8 @@ npm run clean
 |------------|--------|------|--------|
 | Phase 0 started | ✅ | Jan 2026 | - |
 | Phase 0 complete | ✅ | Jan 2026 | 5deed68 |
-| Phase 1 started | ⏳ | - | - |
-| Phase 1 complete | ⏳ | - | - |
+| Phase 1 started | ✅ | Jan 2026 | - |
+| Phase 1 complete | ✅ | Jan 2026 | pending |
 | Phase 2 started | ⏳ | - | - |
 | Phase 2 complete | ⏳ | - | - |
 | Phase 3 started | ⏳ | - | - |

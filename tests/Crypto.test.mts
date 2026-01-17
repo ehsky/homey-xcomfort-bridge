@@ -15,9 +15,9 @@ import {
   formatForExchange,
   isValidContext,
   type EncryptionContext,
-} from '../lib/crypto/Encryption.js';
-import { authHash, generateSalt } from '../lib/crypto/Hash.js';
-import { ENCRYPTION_CONFIG } from '../lib/types.js';
+} from '../lib/crypto/Encryption.mjs';
+import { authHash, generateSalt } from '../lib/crypto/Hash.mjs';
+import { ENCRYPTION_CONFIG } from '../lib/types.mjs';
 
 describe('Encryption', () => {
   describe('padToBlockSize', () => {

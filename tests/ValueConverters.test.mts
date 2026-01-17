@@ -12,7 +12,7 @@ import {
   isValidXComfortDimValue,
   isValidHomeyDimValue,
   clampXComfortDimValue,
-} from '../lib/utils/ValueConverters.js';
+} from '../lib/utils/ValueConverters.mjs';
 
 describe('ValueConverters', () => {
   describe('homeyToXComfort', () => {

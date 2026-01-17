@@ -1,4 +1,4 @@
-const Homey = require('homey');
+import Homey from 'homey';
 
 class DimmingActuatorDriver extends Homey.Driver {
   onInit() {
@@ -52,4 +52,4 @@ class DimmingActuatorDriver extends Homey.Driver {
   }
 }
 
-module.exports = DimmingActuatorDriver;
+export default DimmingActuatorDriver;
