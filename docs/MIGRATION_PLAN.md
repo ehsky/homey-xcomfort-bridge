@@ -2,7 +2,7 @@
 
 > **Branch:** `refactor/typescript-esm-migration`  
 > **Started:** January 2026  
-> **Status:** Phase 0 - In Progress
+> **Status:** Phase 0 ✅ Complete | Phase 1 - Ready
 
 ## Overview
 
@@ -29,18 +29,18 @@ Suggested commit points:
 
 ## Phase Summary
 
-| Phase | Goal | Breaking? | Testable? | Est. Effort |
-|-------|------|-----------|-----------|-------------|
-| **0** | TypeScript infrastructure | No | Yes | 1-2 hours |
-| **1** | Parallel TypeScript (new files only) | No | Yes | 2-3 hours |
-| **2** | Convert existing JS → TS (one file at a time) | No | Yes | 4-6 hours |
-| **3** | Extract modules from XComfortConnection | No | Yes | 4-6 hours |
-| **4** | Full TypeScript (remove all .js) | Yes | Yes | 2-3 hours |
-| **5** | Polish & P1/P2 features | No | Yes | Ongoing |
+| Phase | Goal | Breaking? | Testable? | Est. Effort | Status |
+|-------|------|-----------|-----------|-------------|--------|
+| **0** | TypeScript infrastructure | No | Yes | 1-2 hours | ✅ Done |
+| **1** | Parallel TypeScript (new files only) | No | Yes | 2-3 hours | ⏳ Next |
+| **2** | Convert existing JS → TS (one file at a time) | No | Yes | 4-6 hours | |
+| **3** | Extract modules from XComfortConnection | No | Yes | 4-6 hours | |
+| **4** | Full TypeScript (remove all .js) | Yes | Yes | 2-3 hours | |
+| **5** | Polish & P1/P2 features | No | Yes | Ongoing | |
 
 ---
 
-## Phase 0: Infrastructure Setup ✅ (Current)
+## Phase 0: Infrastructure Setup ✅ COMPLETE
 
 **Goal:** Set up TypeScript tooling without breaking anything.
 
@@ -54,9 +54,15 @@ Suggested commit points:
 - [x] Create barrel exports (`lib/index.ts`)
 - [x] Update `.gitignore` for TypeScript outputs
 - [x] Add basic unit test (`tests/ValueConverters.test.ts`)
-- [ ] Verify `npm run build` compiles successfully
-- [ ] Verify `npm test` runs successfully
-- [ ] Create this migration plan document
+- [x] Verify `npm run build` compiles successfully
+- [x] Verify `npm test` runs successfully (23 tests passing)
+- [x] Create this migration plan document
+
+### Commit
+
+```
+5deed68 - Phase 0: TypeScript infrastructure setup
+```
 
 ### Test Criteria
 
@@ -288,19 +294,19 @@ npm run clean
 
 > **Update this section as you progress!**
 
-| Checkpoint | Status | Date |
-|------------|--------|------|
-| Phase 0 started | ✅ | Jan 2026 |
-| Phase 0 complete | ⏳ | - |
-| Phase 1 started | ⏳ | - |
-| Phase 1 complete | ⏳ | - |
-| Phase 2 started | ⏳ | - |
-| Phase 2 complete | ⏳ | - |
-| Phase 3 started | ⏳ | - |
-| Phase 3 complete | ⏳ | - |
-| Phase 4 started | ⏳ | - |
-| Phase 4 complete | ⏳ | - |
-| Ready for release | ⏳ | - |
+| Checkpoint | Status | Date | Commit |
+|------------|--------|------|--------|
+| Phase 0 started | ✅ | Jan 2026 | - |
+| Phase 0 complete | ✅ | Jan 2026 | 5deed68 |
+| Phase 1 started | ⏳ | - | - |
+| Phase 1 complete | ⏳ | - | - |
+| Phase 2 started | ⏳ | - | - |
+| Phase 2 complete | ⏳ | - | - |
+| Phase 3 started | ⏳ | - | - |
+| Phase 3 complete | ⏳ | - | - |
+| Phase 4 started | ⏳ | - | - |
+| Phase 4 complete | ⏳ | - | - |
+| Ready for release | ⏳ | - | - |
 
 ---
 
