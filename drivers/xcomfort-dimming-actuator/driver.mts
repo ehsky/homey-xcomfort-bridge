@@ -1,7 +1,14 @@
-const Homey = require('homey');
+import Homey from 'homey';
+import type { XComfortBridge } from '../../lib/connection/XComfortBridge.mjs';
+import type { XComfortDevice } from '../../lib/types.mjs';
+
+type XComfortApp = Homey.App & {
+  isConnected(): boolean;
+  getConnection(): XComfortBridge;
+};
 
 class DimmingActuatorDriver extends Homey.Driver {
-  onInit() {
+  async onInit() {
     this.log('Dimming Actuator driver initialized');
   }
 
@@ -10,7 +17,7 @@ class DimmingActuatorDriver extends Homey.Driver {
     
     try {
       // Get connection from app
-      const app = this.homey.app;
+      const app = this.homey.app as XComfortApp;
       if (!app.isConnected()) {
         this.error('xComfort Bridge not connected. Please configure bridge settings first.');
         throw new Error('xComfort Bridge not connected. Please configure bridge settings first.');
@@ -22,15 +29,17 @@ class DimmingActuatorDriver extends Homey.Driver {
       this.log(`Found ${devices.length} total devices from xComfort bridge`);
       
       // Filter for dimmable devices only
-      const dimmableDevices = devices.filter(device => device.dimmable === true);
+      const dimmableDevices = devices.filter(
+        (device: XComfortDevice) => device.dimmable === true
+      );
       
       this.log(`Found ${dimmableDevices.length} dimmable devices:`);
-      dimmableDevices.forEach(device => {
+      dimmableDevices.forEach((device: XComfortDevice) => {
         this.log(`  - ${device.name} (ID: ${device.deviceId})`);
       });
       
       // Convert to Homey device format
-      const homeyDevices = dimmableDevices.map(device => ({
+      const homeyDevices = dimmableDevices.map((device: XComfortDevice) => ({
         name: device.name,
         data: {
           id: `dimmer_${device.deviceId}`,
@@ -52,4 +61,4 @@ class DimmingActuatorDriver extends Homey.Driver {
   }
 }
 
-module.exports = DimmingActuatorDriver;
+export default DimmingActuatorDriver;

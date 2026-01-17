@@ -33,18 +33,91 @@ This Homey app integrates Eaton xComfort Bridge devices with Homey Pro, providin
 
 ## Project Structure
 
-- `/drivers/xcomfort-dimming-actuator/` - Driver for dimming actuators
-- `/drivers/xcomfort-room/` - Driver for room-level control
-- `/lib/XComfortConnection.js` - Shared connection logic to xComfort Bridge
-- `app.js` - Main app coordinator
-- `package.json` - Node.js dependencies and app metadata
+```
+├── app.mjs                          # Main app entry point (JavaScript ESM)
+├── app.json                         # Homey app manifest
+├── package.json                     # Node.js dependencies
+├── tsconfig.json                    # TypeScript configuration
+├── drivers/
+│   ├── xcomfort-dimming-actuator/   # Dimming actuator driver
+│   │   ├── device.mts               # TypeScript source (builds to .mjs)
+│   │   └── driver.mts               # TypeScript source (builds to .mjs)
+│   └── xcomfort-room/               # Room controller driver
+│       ├── device.mts               # TypeScript source (builds to .mjs)
+│       └── driver.mts               # TypeScript source (builds to .mjs)
+├── lib/                             # Core library (TypeScript)
+│   ├── XComfortConnection.mts       # WebSocket connection handler
+│   ├── XComfortProtocol.mts         # Protocol constants & types
+│   ├── XComfortSceneManager.mts     # Scene management
+│   ├── types.mts                    # Shared TypeScript interfaces
+│   ├── index.mts                    # Barrel exports
+│   ├── crypto/                      # Encryption modules
+│   │   ├── Encryption.mts           # AES-256-CBC
+│   │   ├── Hash.mts                 # SHA-256 hashing
+│   │   └── KeyExchange.mts          # RSA key exchange
+│   └── utils/                       # Utility functions
+│       └── ValueConverters.mts      # Dim value conversion
+├── tests/                           # Unit tests
+│   ├── Crypto.test.mts              # Crypto module tests
+│   └── ValueConverters.test.mts     # Converter tests
+├── .homeybuild/                     # Build output (git-ignored)
+└── docs/                            # Documentation
+    ├── ARCHITECTURE.md              # System architecture
+    └── MIGRATION_PLAN.md            # TypeScript migration plan
+```
 
-## Setup Instructions
+## Development Setup
 
-1. Install Homey CLI: `npm install -g homey`
-2. Install dependencies: `npm install`
-3. Run the app locally: `homey app run`
-4. Pair devices via Homey app UI
+### Prerequisites
+
+- **Node.js 22+** (required for ESM support)
+- **Homey CLI**: `npm install -g homey`
+- **TypeScript 5.7+** (installed as dev dependency)
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/ehsky/homey-xcomfort-bridge.git
+cd homey-xcomfort-bridge
+
+# Install dependencies
+npm install
+
+# Build TypeScript
+npm run build
+```
+
+### Development Commands
+
+```bash
+# Build TypeScript to .homeybuild/
+npm run build
+
+# Watch mode (auto-rebuild on changes)
+npm run build:watch
+
+# Run unit tests (48 tests)
+npm test
+
+# Type-check without emitting
+npm run lint
+
+# Clean build output
+npm run clean
+
+# Run locally on Homey
+homey app run
+
+# Validate for App Store
+homey app validate
+```
+
+### Running the App
+
+1. Configure bridge settings in Homey app UI (bridge IP and auth key)
+2. Run the app: `homey app run`
+3. Pair devices via Homey app UI
 
 ## Technical Implementation
 
@@ -80,6 +153,15 @@ This Homey app integrates Eaton xComfort Bridge devices with Homey Pro, providin
 - All protocol communication is logged for troubleshooting
 - Device discovery and state updates are clearly logged
 - Connection status and reconnection attempts are tracked
+
+## Technology Stack
+
+- **Language**: TypeScript 5.7+ (library + drivers), JavaScript ESM (app entrypoint)
+- **Runtime**: Node.js 22, Homey SDK v3
+- **ESM Approach**: `.mts`/`.mjs` file extensions (Homey's official method)
+- **Build Output**: `.homeybuild/` directory
+- **Testing**: Node.js built-in test runner
+- **Encryption**: AES-256-CBC with RSA key exchange (node-forge)
 
 ## Acknowledgments
 

@@ -1,6 +1,16 @@
-const Homey = require('homey');
+import Homey from 'homey';
+import type { XComfortBridge } from '../../lib/connection/XComfortBridge.mjs';
+import type { DeviceStateUpdate, XComfortDevice } from '../../lib/types.mjs';
+
+type XComfortApp = Homey.App & {
+  isConnected(): boolean;
+  getConnection(): XComfortBridge;
+};
 
 class DimmingActuatorDevice extends Homey.Device {
+  deviceId = '';
+  temperaturePollingInterval: ReturnType<typeof setInterval> | null = null;
+
   async onInit() {
     this.log('Dimming Actuator device initialized');
     
@@ -50,11 +60,13 @@ class DimmingActuatorDevice extends Homey.Device {
   }
 
   setupStateListener() {
-    const app = this.homey.app;
+    const app = this.homey.app as XComfortApp;
     if (app.isConnected()) {
       const connection = app.getConnection();
-      
-      connection.addDeviceStateListener(this.deviceId, async (deviceId, stateData) => {
+
+      connection.addDeviceStateListener(
+        this.deviceId,
+        async (_deviceId: string, stateData: DeviceStateUpdate) => {
         this.log(`External state change:`, stateData);
         
         // Handle regular device state updates (switch/dim)
@@ -97,7 +109,8 @@ class DimmingActuatorDevice extends Homey.Device {
             }
           }
         }
-      });
+        }
+      );
     }
     
     // Start temperature polling - check every 2 minutes for fresh temperature data
@@ -122,7 +135,7 @@ class DimmingActuatorDevice extends Homey.Device {
   }
 
   async checkForTemperatureData() {
-    const app = this.homey.app;
+    const app = this.homey.app as XComfortApp;
     if (!app.isConnected()) {
       return;
     }
@@ -130,14 +143,14 @@ class DimmingActuatorDevice extends Homey.Device {
     try {
       const connection = app.getConnection();
       // Get current device data to see if temperature is available
-      const deviceData = connection.getDevice(this.deviceId);
+      const deviceData = connection.getDevice(this.deviceId) as XComfortDevice | undefined;
       
       if (deviceData && deviceData.info) {
         // Parse temperature from existing device data
         const metadata = connection.parseInfoMetadata(deviceData.info);
         if (metadata.temperature !== undefined) {
           this.log(`Polling found temperature: ${metadata.temperature}°C`);
-          this.setCapabilityValue('measure_temperature', metadata.temperature).catch(err => {
+          this.setCapabilityValue('measure_temperature', metadata.temperature).catch((err: unknown) => {
             this.error('Failed to update temperature capability:', err);
           });
         } else {
@@ -151,10 +164,10 @@ class DimmingActuatorDevice extends Homey.Device {
     }
   }
 
-  async onCapabilityOnoff(value) {
+  async onCapabilityOnoff(value: boolean) {
     this.log(`Setting onoff to: ${value}`);
     
-    const app = this.homey.app;
+    const app = this.homey.app as XComfortApp;
     if (!app.isConnected()) {
       throw new Error('xComfort Bridge not connected');
     }
@@ -169,10 +182,10 @@ class DimmingActuatorDevice extends Homey.Device {
     }
   }
 
-  async onCapabilityDim(value) {
+  async onCapabilityDim(value: number) {
     this.log(`Setting dim to: ${value}`);
-    
-    const app = this.homey.app;
+
+    const app = this.homey.app as XComfortApp;
     if (!app.isConnected()) {
       throw new Error('xComfort Bridge not connected');
     }
@@ -200,21 +213,13 @@ class DimmingActuatorDevice extends Homey.Device {
 
   async onDeleted() {
     this.log('Dimming Actuator device deleted');
-    
+
     // Clean up temperature polling
     if (this.temperaturePollingInterval) {
       clearInterval(this.temperaturePollingInterval);
       this.temperaturePollingInterval = null;
     }
-    
-    // Clean up state listener
-    const app = this.homey.app;
-    if (app.isConnected()) {
-      const connection = app.getConnection();
-      // Note: We'd need to keep track of the callback to remove it properly
-      // For now, the connection class will handle cleanup when device is removed
-    }
   }
 }
 
-module.exports = DimmingActuatorDevice;
+export default DimmingActuatorDevice;

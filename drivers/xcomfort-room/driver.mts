@@ -1,7 +1,14 @@
-const Homey = require('homey');
+import Homey from 'homey';
+import type { XComfortBridge } from '../../lib/connection/XComfortBridge.mjs';
+import type { XComfortRoom } from '../../lib/types.mjs';
+
+type XComfortApp = Homey.App & {
+  isConnected(): boolean;
+  getConnection(): XComfortBridge;
+};
 
 class RoomDriver extends Homey.Driver {
-  onInit() {
+  async onInit() {
     this.log('Room driver initialized');
   }
 
@@ -10,7 +17,7 @@ class RoomDriver extends Homey.Driver {
     
     try {
       // Get connection from app
-      const app = this.homey.app;
+      const app = this.homey.app as XComfortApp;
       if (!app.isConnected()) {
         this.error('xComfort Bridge not connected. Please configure bridge settings first.');
         throw new Error('xComfort Bridge not connected. Please configure bridge settings first.');
@@ -22,17 +29,17 @@ class RoomDriver extends Homey.Driver {
       this.log(`Found ${rooms.length} total rooms from xComfort bridge`);
       
       // Filter rooms that have devices
-      const roomsWithDevices = rooms.filter(room => {
+      const roomsWithDevices = rooms.filter((room: XComfortRoom) => {
         return room.devices && room.devices.length > 0;
       });
       
       this.log(`Found ${roomsWithDevices.length} rooms with devices:`);
-      roomsWithDevices.forEach(room => {
+      roomsWithDevices.forEach((room: XComfortRoom) => {
         this.log(`  - ${room.name} (ID: ${room.roomId}, ${room.devices ? room.devices.length : 0} devices)`);
       });
       
       // Convert to Homey device format
-      const homeyRooms = roomsWithDevices.map(room => ({
+      const homeyRooms = roomsWithDevices.map((room: XComfortRoom) => ({
         name: room.name,
         data: {
           id: `room_${room.roomId}`,
@@ -53,4 +60,4 @@ class RoomDriver extends Homey.Driver {
   }
 }
 
-module.exports = RoomDriver;
+export default RoomDriver;

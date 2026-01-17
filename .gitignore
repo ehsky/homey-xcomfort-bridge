@@ -1,4 +1,14 @@
 .homeybuild
-copilot-instructions.md
 
 node_modules/
+
+# TypeScript build output (Homey uses .homeybuild)
+*.tsbuildinfo
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
