@@ -1,6 +1,16 @@
 import Homey from 'homey';
+import type { XComfortBridge } from '../../lib/connection/XComfortBridge.mjs';
+import type { RoomStateUpdate, XComfortRoom } from '../../lib/types.mjs';
+
+type XComfortApp = Homey.App & {
+  isConnected(): boolean;
+  getConnection(): XComfortBridge;
+  requestDeviceRefresh(): void;
+};
 
 class RoomDevice extends Homey.Device {
+  roomId = '';
+
   async onInit() {
     this.log('Room device initialized');
     
@@ -45,10 +55,10 @@ class RoomDevice extends Homey.Device {
   }
 
   updateRoomInfo() {
-    const app = this.homey.app;
+    const app = this.homey.app as XComfortApp;
     if (app.isConnected()) {
       const connection = app.getConnection();
-      const room = connection.getRoom(this.roomId);
+      const room = connection.getRoom(this.roomId) as XComfortRoom | undefined;
       
       if (room) {
         this.log(`Room: ${room.name}, Devices: ${room.devices ? room.devices.length : 0}`);
@@ -56,7 +66,7 @@ class RoomDevice extends Homey.Device {
         // Update device settings with room info
         this.setSettings({
           deviceCount: room.devices ? room.devices.length : 0
-        }).catch(err => {
+        }).catch((err: unknown) => {
           this.error('Failed to update room settings:', err);
         });
       }
@@ -64,76 +74,79 @@ class RoomDevice extends Homey.Device {
   }
 
   setupRoomStateListener() {
-    const app = this.homey.app;
+    const app = this.homey.app as XComfortApp;
     if (app.isConnected()) {
       const connection = app.getConnection();
-      
-      connection.addRoomStateListener(this.roomId, async (roomId, stateData) => {
-        this.log(`Room state change:`, stateData);
-        
-        // Update basic lighting capabilities
-        if (typeof stateData.switch === 'boolean') {
-          try {
-            await this.setCapabilityValue('onoff', stateData.switch);
-            this.log(`Successfully updated room onoff to: ${stateData.switch}`);
-          } catch (err) {
-            this.error('Failed to update room onoff capability:', err);
+
+      connection.addRoomStateListener(
+        this.roomId,
+        async (_roomId: string, stateData: RoomStateUpdate) => {
+          this.log(`Room state change:`, stateData);
+
+          // Update basic lighting capabilities
+          if (typeof stateData.switch === 'boolean') {
+            try {
+              await this.setCapabilityValue('onoff', stateData.switch);
+              this.log(`Successfully updated room onoff to: ${stateData.switch}`);
+            } catch (err) {
+              this.error('Failed to update room onoff capability:', err);
+            }
+          }
+
+          if (typeof stateData.dimmvalue === 'number') {
+            try {
+              // Convert 0-99 range to 0-1 range for Homey
+              const homeyDimValue = Math.max(0, Math.min(1, stateData.dimmvalue / 99));
+              await this.setCapabilityValue('dim', homeyDimValue);
+              this.log(`Successfully updated room dim to: ${homeyDimValue} (xComfort: ${stateData.dimmvalue}%)`);
+            } catch (err) {
+              this.error('Failed to update room dim capability:', err);
+            }
+          }
+
+          // Update power meter
+          if (typeof stateData.power === 'number') {
+            try {
+              await this.setCapabilityValue('meter_power', stateData.power);
+              this.log(`Successfully updated room power to: ${stateData.power}W`);
+            } catch (err) {
+              this.error('Failed to update room power capability:', err);
+            }
+          }
+
+          // Update contact sensors (true = open/alarm, false = closed/no alarm)
+          if (typeof stateData.windowsOpen === 'number') {
+            try {
+              const windowsOpen = stateData.windowsOpen > 0;
+              await this.setCapabilityValue('alarm_contact.windows', windowsOpen);
+              this.log(`Successfully updated room windows status to: ${windowsOpen ? 'open' : 'closed'} (count: ${stateData.windowsOpen})`);
+            } catch (err) {
+              this.error('Failed to update room windows capability:', err);
+            }
+          }
+
+          if (typeof stateData.doorsOpen === 'number') {
+            try {
+              const doorsOpen = stateData.doorsOpen > 0;
+              await this.setCapabilityValue('alarm_contact.doors', doorsOpen);
+              this.log(`Successfully updated room doors status to: ${doorsOpen ? 'open' : 'closed'} (count: ${stateData.doorsOpen})`);
+            } catch (err) {
+              this.error('Failed to update room doors capability:', err);
+            }
+          }
+
+          // Update motion/presence sensor
+          if (typeof stateData.presence === 'number') {
+            try {
+              const presenceDetected = stateData.presence > 0;
+              await this.setCapabilityValue('alarm_motion', presenceDetected);
+              this.log(`Successfully updated room presence to: ${presenceDetected ? 'detected' : 'none'} (count: ${stateData.presence})`);
+            } catch (err) {
+              this.error('Failed to update room presence capability:', err);
+            }
           }
         }
-        
-        if (typeof stateData.dimmvalue === 'number') {
-          try {
-            // Convert 0-99 range to 0-1 range for Homey
-            const homeyDimValue = Math.max(0, Math.min(1, stateData.dimmvalue / 99));
-            await this.setCapabilityValue('dim', homeyDimValue);
-            this.log(`Successfully updated room dim to: ${homeyDimValue} (xComfort: ${stateData.dimmvalue}%)`);
-          } catch (err) {
-            this.error('Failed to update room dim capability:', err);
-          }
-        }
-        
-        // Update power meter
-        if (typeof stateData.power === 'number') {
-          try {
-            await this.setCapabilityValue('meter_power', stateData.power);
-            this.log(`Successfully updated room power to: ${stateData.power}W`);
-          } catch (err) {
-            this.error('Failed to update room power capability:', err);
-          }
-        }
-        
-        // Update contact sensors (true = open/alarm, false = closed/no alarm)
-        if (typeof stateData.windowsOpen === 'number') {
-          try {
-            const windowsOpen = stateData.windowsOpen > 0;
-            await this.setCapabilityValue('alarm_contact.windows', windowsOpen);
-            this.log(`Successfully updated room windows status to: ${windowsOpen ? 'open' : 'closed'} (count: ${stateData.windowsOpen})`);
-          } catch (err) {
-            this.error('Failed to update room windows capability:', err);
-          }
-        }
-        
-        if (typeof stateData.doorsOpen === 'number') {
-          try {
-            const doorsOpen = stateData.doorsOpen > 0;
-            await this.setCapabilityValue('alarm_contact.doors', doorsOpen);
-            this.log(`Successfully updated room doors status to: ${doorsOpen ? 'open' : 'closed'} (count: ${stateData.doorsOpen})`);
-          } catch (err) {
-            this.error('Failed to update room doors capability:', err);
-          }
-        }
-        
-        // Update motion/presence sensor
-        if (typeof stateData.presence === 'number') {
-          try {
-            const presenceDetected = stateData.presence > 0;
-            await this.setCapabilityValue('alarm_motion', presenceDetected);
-            this.log(`Successfully updated room presence to: ${presenceDetected ? 'detected' : 'none'} (count: ${stateData.presence})`);
-          } catch (err) {
-            this.error('Failed to update room presence capability:', err);
-          }
-        }
-      });
+      );
       
       // Request initial room state to populate capabilities
       this.requestInitialRoomState();
@@ -147,7 +160,7 @@ class RoomDevice extends Homey.Device {
   async requestInitialRoomState() {
     // Wait a bit for the connection to be fully established
     setTimeout(async () => {
-      const app = this.homey.app;
+      const app = this.homey.app as XComfortApp;
       if (app.isConnected()) {
         try {
           this.log(`Requesting initial state for room ${this.roomId}`);
@@ -164,10 +177,10 @@ class RoomDevice extends Homey.Device {
     }, 2000);
   }
 
-  async onCapabilityOnoff(value) {
+  async onCapabilityOnoff(value: boolean) {
     this.log(`Setting room lights to: ${value ? 'ON' : 'OFF'}`);
     
-    const app = this.homey.app;
+    const app = this.homey.app as XComfortApp;
     if (!app.isConnected()) {
       throw new Error('xComfort Bridge not connected');
     }
@@ -182,10 +195,10 @@ class RoomDevice extends Homey.Device {
     }
   }
 
-  async onCapabilityDim(value) {
+  async onCapabilityDim(value: number) {
     this.log(`Setting room dimmer to: ${value}`);
     
-    const app = this.homey.app;
+    const app = this.homey.app as XComfortApp;
     if (!app.isConnected()) {
       throw new Error('xComfort Bridge not connected');
     }
@@ -212,14 +225,6 @@ class RoomDevice extends Homey.Device {
 
   async onDeleted() {
     this.log('Room device deleted');
-    
-    // Clean up room state listener
-    const app = this.homey.app;
-    if (app.isConnected()) {
-      const connection = app.getConnection();
-      // Note: We'd need to track the callback to remove it properly
-      // For now, the listener will be cleaned up when the connection is reset
-    }
   }
 }
 

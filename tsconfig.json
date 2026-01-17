@@ -8,6 +8,7 @@
     "outDir": "./.homeybuild",
     "rootDir": "./",
     "allowJs": true,
+    "types": ["homey-apps-sdk-v3-types"],
     
     // Strict type checking
     "strict": true,
@@ -46,7 +47,10 @@
     "lib/**/*.ts",
     "lib/**/*.mts",
     "tests/**/*.ts",
-    "tests/**/*.mts"
+    "tests/**/*.mts",
+    "drivers/**/*.ts",
+    "drivers/**/*.mts",
+    "types/**/*.d.ts"
   ],
   "exclude": [
     "node_modules",

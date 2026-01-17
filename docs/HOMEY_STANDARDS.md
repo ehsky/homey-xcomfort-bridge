@@ -57,7 +57,7 @@ const __dirname = dirname(__filename);
 | Source File | Output File | Notes |
 |-------------|-------------|-------|
 | `app.mjs` | `app.mjs` | Main entry point |
-| `device.mjs` | `device.mjs` | Driver devices |
+| `device.mts` | `device.mjs` | Driver devices (TypeScript source) |
 | `lib/types.mts` | `lib/types.mjs` | TypeScript → ESM output |
 
 **package.json configuration:**
@@ -153,8 +153,8 @@ module.exports = MyApp;
 │       └── Hash.mts
 ├── drivers/
 │   └── my-driver/
-│       ├── device.mjs       # ESM JavaScript
-│       └── driver.mjs
+│       ├── device.mts       # TypeScript source (builds to .mjs)
+│       └── driver.mts
 ├── .homeybuild/             # TypeScript output (used by Homey)
 ├── tests/
 │   └── MyModule.test.mts    # Tests also use .mts
@@ -330,8 +330,8 @@ com.example.app/
 ├── drivers/
 │   └── <driver_id>/
 │       ├── assets/
-│       ├── device.mjs
-│       └── driver.mjs
+│       ├── device.mts
+│       └── driver.mts
 ├── lib/                      # Shared library code
 ├── locales/
 │   └── en.json
@@ -435,7 +435,7 @@ class Device extends Homey.Device {
 
 ### 3.4 Flow Cards
 
-#### Registration (in driver.mjs or app.mjs)
+#### Registration (in driver.mts or app.mjs)
 ```javascript
 async onInit() {
   // Action card

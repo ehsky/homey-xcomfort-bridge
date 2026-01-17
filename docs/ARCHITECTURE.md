@@ -38,16 +38,16 @@ lib/
 
 drivers/
 ├── xcomfort-dimming-actuator/
-│   ├── device.mjs             # JavaScript ESM (Homey runtime)
-│   └── driver.mjs             # Device discovery
+│   ├── device.mts             # TypeScript source (builds to .mjs)
+│   └── driver.mts             # TypeScript source (builds to .mjs)
 └── xcomfort-room/
-    ├── device.mjs             # JavaScript ESM (Homey runtime)
-    └── driver.mjs             # Room discovery
+    ├── device.mts             # TypeScript source (builds to .mjs)
+    └── driver.mts             # Room discovery
 
 app.mjs                        # JavaScript ESM entry point
 ```
 
-**Note:** Driver files remain as JavaScript ESM because they require the Homey runtime module which is not available during independent TypeScript compilation. The library modules are fully typed TypeScript.
+**Note:** Driver files are now TypeScript `.mts` sources compiled to `.mjs` for the Homey runtime. The app entrypoint remains `app.mjs` due to Homey CLI constraints.
 
 ---
 

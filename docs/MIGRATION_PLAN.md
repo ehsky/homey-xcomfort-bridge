@@ -35,7 +35,7 @@ Suggested commit points:
 | **1** | ESM conversion + crypto extraction | Yes | Yes | 3-4 hours | ✅ Done |
 | **2** | Convert existing JS → TS (one file at a time) | No | Yes | 4-6 hours | ✅ Done |
 | **3** | Extract modules from XComfortConnection | No | Yes | 4-6 hours | |
-| **4** | Full TypeScript (remove all .js/.mjs) | Yes | Yes | 2-3 hours | |
+| **4** | Full TypeScript (except app.mjs entrypoint) | Yes | Yes | 2-3 hours | |
 | **5** | Polish & P1/P2 features | No | Yes | Ongoing | |
 
 ---
@@ -246,11 +246,13 @@ git add -A && git commit -m "Phase 3: Extract <ModuleName> from XComfortConnecti
 
 ### Tasks
 
-- [ ] Verify all `.js` files are converted or deleted
-- [ ] Update `app.json` if needed for entry point
-- [ ] Update `package.json` main entry to `dist/app.js`
-- [ ] Run full validation: `homey app validate`
-- [ ] Test full user journey
+- [x] Convert driver files to `.mts` (compiled output is `.mjs`)
+- [x] Keep `app.mjs` as the JS ESM entrypoint (Homey CLI limitation)
+- [x] Verify all other `.js`/`.mjs` sources are converted or deleted
+- [x] Update `app.json` if needed for entry point
+- [x] Confirm `package.json` main entry remains `app.mjs`
+- [x] Run full validation: `homey app validate` (publish warns about missing driver images)
+- [x] Test full user journey
 
 ### Test Criteria
 
@@ -279,7 +281,8 @@ git add -A && git commit -m "Phase 4: Complete TypeScript migration"
 - [ ] Implement proper reconnection backoff
 - [ ] Add settings validation
 - [ ] Improve error messages
-- [ ] Add more unit tests
+- [ ] Add driver pairing/state update tests (room + dimming)
+- [ ] Add MessageHandler state update tests (type 310 payloads)
 
 ### P2 Features (Nice to Have)
 
@@ -338,8 +341,8 @@ npm run clean
 | Phase 2 complete | ✅ | Jan 2026 | pending |
 | Phase 3 started | ⏳ | - | - |
 | Phase 3 complete | ⏳ | - | - |
-| Phase 4 started | ⏳ | - | - |
-| Phase 4 complete | ⏳ | - | - |
+| Phase 4 started | ✅ | Jan 2026 | - |
+| Phase 4 complete | ✅ | Jan 2026 | - |
 | Ready for release | ⏳ | - | - |
 
 ---

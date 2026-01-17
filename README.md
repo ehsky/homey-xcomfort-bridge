@@ -40,11 +40,11 @@ This Homey app integrates Eaton xComfort Bridge devices with Homey Pro, providin
 ├── tsconfig.json                    # TypeScript configuration
 ├── drivers/
 │   ├── xcomfort-dimming-actuator/   # Dimming actuator driver
-│   │   ├── device.mjs               # Device implementation
-│   │   └── driver.mjs               # Device discovery
+│   │   ├── device.mts               # TypeScript source (builds to .mjs)
+│   │   └── driver.mts               # TypeScript source (builds to .mjs)
 │   └── xcomfort-room/               # Room controller driver
-│       ├── device.mjs               # Device implementation
-│       └── driver.mjs               # Device discovery
+│       ├── device.mts               # TypeScript source (builds to .mjs)
+│       └── driver.mts               # TypeScript source (builds to .mjs)
 ├── lib/                             # Core library (TypeScript)
 │   ├── XComfortConnection.mts       # WebSocket connection handler
 │   ├── XComfortProtocol.mts         # Protocol constants & types
@@ -156,7 +156,7 @@ homey app validate
 
 ## Technology Stack
 
-- **Language**: TypeScript 5.7+ (library), JavaScript ESM (drivers)
+- **Language**: TypeScript 5.7+ (library + drivers), JavaScript ESM (app entrypoint)
 - **Runtime**: Node.js 22, Homey SDK v3
 - **ESM Approach**: `.mts`/`.mjs` file extensions (Homey's official method)
 - **Build Output**: `.homeybuild/` directory
