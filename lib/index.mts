@@ -5,41 +5,58 @@
  * Import from here to access all public types and utilities.
  */
 
-// Types
+// =============================================================================
+// Types (from central types.mts)
+// =============================================================================
 export type {
+  // Configuration
   BridgeConfig,
   LoggerFunction,
+  // Connection
   ConnectionState,
+  AuthState,
+  EncryptionContext,
   ConnectionEvents,
-  XComfortDeviceData,
-  DeviceInfoEntry,
-  DeviceState,
+  // Device
+  XComfortDevice,
+  InfoEntry,
+  DeviceStateUpdate,
   DeviceMetadata,
-  XComfortRoomData,
-  RoomState,
-  XComfortSceneData,
-  SceneDeviceEntry,
+  DeviceStateCallback,
+  // Room
+  XComfortRoom,
+  RoomStateUpdate,
+  RoomStateCallback,
+  // Scene
+  XComfortScene,
+  // Protocol
   ProtocolMessage,
-  MessageType,
+  StateUpdateItem,
+  HomeData,
+  // Events
   BridgeEvents,
   UnsubscribeFunction,
   StateListener,
   EventListener,
+  // Config types
   EncryptionConfig,
   ProtocolTimingConfig,
   InfoTextCode,
 } from './types.mjs';
 
+// =============================================================================
 // Constants
+// =============================================================================
 export {
-  MESSAGE_TYPES,
   ENCRYPTION_CONFIG,
   PROTOCOL_TIMING,
   DIM_LIMITS,
   INFO_TEXT_CODES,
 } from './types.mjs';
 
+// =============================================================================
 // Utilities
+// =============================================================================
 export {
   homeyToXComfort,
   xComfortToHomey,
@@ -48,7 +65,22 @@ export {
   clampXComfortDimValue,
 } from './utils/index.mjs';
 
+// =============================================================================
 // Crypto
+// =============================================================================
 export * from './crypto/index.mjs';
-// TODO: Export XComfortBridge when implemented
-// export { XComfortBridge } from './connection/index.js';
+
+// =============================================================================
+// Connection (modular architecture)
+// =============================================================================
+export { XComfortBridge, type BridgeConnectionState } from './connection/index.mjs';
+
+// =============================================================================
+// State Management
+// =============================================================================
+export { DeviceStateManager, RoomStateManager } from './state/index.mjs';
+
+// =============================================================================
+// Messaging
+// =============================================================================
+export { MessageHandler } from './messaging/index.mjs';

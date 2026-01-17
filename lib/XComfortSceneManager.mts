@@ -4,7 +4,8 @@
  * Manages scene discovery and activation using real scene names from the bridge.
  */
 
-import type XComfortConnection from './XComfortConnection.mjs';
+import type { XComfortBridge } from './connection/XComfortBridge.mjs';
+import type { XComfortScene } from './types.mjs';
 
 /**
  * Scene data as stored in the manager
@@ -13,16 +14,7 @@ interface SceneData {
   id: number;
   name: string;
   devices: unknown[];
-  originalData: BridgeScene;
-}
-
-/**
- * Scene info returned from bridge
- */
-interface BridgeScene {
-  sceneId?: number;
-  name?: string;
-  devices?: unknown[];
+  originalData: XComfortScene;
 }
 
 /**
@@ -42,10 +34,10 @@ export interface SceneActivationResult {
 }
 
 class XComfortSceneManager {
-  private connection: XComfortConnection;
+  private connection: XComfortBridge;
   private scenes: Map<number, SceneData>;
 
-  constructor(connection: XComfortConnection) {
+  constructor(connection: XComfortBridge) {
     this.connection = connection;
     this.scenes = new Map();
   }
@@ -55,7 +47,7 @@ class XComfortSceneManager {
    * Uses real scene names provided by the bridge
    */
   async discoverScenes(): Promise<SceneReference[]> {
-    const detailedScenes = this.connection.getDetailedScenes() as BridgeScene[];
+    const detailedScenes = this.connection.getDetailedScenes();
 
     if (!detailedScenes || detailedScenes.length === 0) {
       console.log('[XComfort] No scenes found in bridge data');

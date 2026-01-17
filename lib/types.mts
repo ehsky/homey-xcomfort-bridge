@@ -2,7 +2,7 @@
  * xComfort Bridge - Shared TypeScript Interfaces
  *
  * This file contains all shared type definitions used across the application.
- * Keep this file focused on interfaces - implementation should be in respective modules.
+ * All modules should import types from here to avoid duplication.
  */
 
 // =============================================================================
@@ -38,10 +38,32 @@ export type LoggerFunction = (...args: unknown[]) => void;
 export type ConnectionState =
   | 'disconnected'
   | 'connecting'
-  | 'authenticating'
   | 'connected'
-  | 'reconnecting'
+  | 'authenticating'
+  | 'renewing'
+  | 'token_renewed'
   | 'error';
+
+/**
+ * Authentication state values
+ */
+export type AuthState =
+  | 'idle'
+  | 'awaiting_connection'
+  | 'awaiting_public_key'
+  | 'awaiting_secret_ack'
+  | 'awaiting_login_response'
+  | 'awaiting_token_apply'
+  | 'awaiting_token_renew'
+  | 'authenticated';
+
+/**
+ * Encryption context for AES
+ */
+export interface EncryptionContext {
+  key: Buffer;
+  iv: Buffer;
+}
 
 /**
  * Connection event types
@@ -59,33 +81,33 @@ export interface ConnectionEvents {
 // =============================================================================
 
 /**
- * Raw device data from xComfort Bridge
+ * Device from xComfort Bridge
  */
-export interface XComfortDeviceData {
+export interface XComfortDevice {
   deviceId: string;
   name: string;
-  devType: number;
-  dimmable: boolean;
-  roomId?: string;
-  info?: DeviceInfoEntry[];
+  dimmable?: boolean;
+  devType?: number;
+  info?: InfoEntry[];
+  [key: string]: unknown;
 }
 
 /**
- * Device info entry (metadata like temperature, humidity)
+ * Info entry for device metadata (temperature, humidity, etc.)
  */
-export interface DeviceInfoEntry {
+export interface InfoEntry {
   text: string;
   value: string | number;
 }
 
 /**
- * Device state update
+ * Device state update payload
  */
-export interface DeviceState {
+export interface DeviceStateUpdate {
   switch?: boolean;
   dimmvalue?: number;
   power?: number;
-  curstate?: number;
+  curstate?: unknown;
   metadata?: DeviceMetadata;
 }
 
@@ -97,23 +119,32 @@ export interface DeviceMetadata {
   humidity?: number;
 }
 
+/**
+ * Device state listener callback
+ */
+export type DeviceStateCallback = (
+  deviceId: string,
+  stateData: DeviceStateUpdate
+) => void | Promise<void>;
+
 // =============================================================================
 // Room Types
 // =============================================================================
 
 /**
- * Raw room data from xComfort Bridge
+ * Room from xComfort Bridge
  */
-export interface XComfortRoomData {
+export interface XComfortRoom {
   roomId: string;
   name: string;
-  devices?: string[];
+  devices?: unknown[];
+  [key: string]: unknown;
 }
 
 /**
- * Room state update
+ * Room state update payload
  */
-export interface RoomState {
+export interface RoomStateUpdate {
   switch?: boolean;
   dimmvalue?: number;
   lightsOn?: number;
@@ -123,28 +154,29 @@ export interface RoomState {
   presence?: number;
   shadsClosed?: number;
   power?: number;
-  errorState?: number;
+  errorState?: unknown;
 }
+
+/**
+ * Room state listener callback
+ */
+export type RoomStateCallback = (
+  roomId: string,
+  stateData: RoomStateUpdate
+) => void | Promise<void>;
 
 // =============================================================================
 // Scene Types
 // =============================================================================
 
 /**
- * Scene data from xComfort Bridge
+ * Scene from xComfort Bridge
  */
-export interface XComfortSceneData {
-  sceneId: number;
-  name: string;
-  devices?: SceneDeviceEntry[];
-}
-
-/**
- * Device configuration within a scene
- */
-export interface SceneDeviceEntry {
-  deviceId: string;
-  value: number;
+export interface XComfortScene {
+  sceneId?: number;
+  name?: string;
+  devices?: unknown[];
+  [key: string]: unknown;
 }
 
 // =============================================================================
@@ -152,7 +184,7 @@ export interface SceneDeviceEntry {
 // =============================================================================
 
 /**
- * Base protocol message structure
+ * Protocol message structure
  */
 export interface ProtocolMessage {
   type_int: number;
@@ -162,55 +194,32 @@ export interface ProtocolMessage {
 }
 
 /**
- * Message types enum (matches XComfortProtocol.js)
+ * State update item from bridge
  */
-export const MESSAGE_TYPES = {
-  // System Messages
-  NACK: 0,
-  ACK: 1,
-  HEARTBEAT: 2,
-  PING: 3,
+export interface StateUpdateItem {
+  deviceId?: string;
+  roomId?: string;
+  switch?: boolean;
+  dimmvalue?: number;
+  power?: number;
+  curstate?: unknown;
+  info?: InfoEntry[];
+  lightsOn?: number;
+  loadsOn?: number;
+  windowsOpen?: number;
+  doorsOpen?: number;
+  presence?: number;
+  shadsClosed?: number;
+  errorState?: unknown;
+}
 
-  // Connection & Authentication
-  CONNECTION_START: 10,
-  CONNECTION_CONFIRM: 11,
-  SC_INIT_RESPONSE: 12,
-  CONNECTION_DECLINED: 13,
-  SC_INIT_REQUEST: 14,
-  PUBLIC_KEY_RESPONSE: 15,
-  SECRET_EXCHANGE: 16,
-  SECRET_EXCHANGE_ACK: 17,
-
-  // Authentication
-  LOGIN_REQUEST: 30,
-  LOGIN_RESPONSE: 32,
-  TOKEN_APPLY: 33,
-  TOKEN_APPLY_ACK: 34,
-  TOKEN_RENEW: 37,
-  TOKEN_RENEW_RESPONSE: 38,
-
-  // Data Requests
-  REQUEST_DEVICES: 240,
-  REQUEST_ROOMS: 242,
-
-  // Device Control
-  DEVICE_DIM: 280,
-  DEVICE_SWITCH: 281,
-  ROOM_DIM: 283,
-  ROOM_SWITCH: 284,
-  ACTIVATE_SCENE: 285,
-
-  // Response/Data
-  SET_ALL_DATA: 300,
-  SET_HOME_DATA: 303,
-  STATE_UPDATE: 310,
-  LOG_DATA: 304,
-  LOG_ENTRIES: 408,
-  ERROR_INFO: 295,
-  SET_BRIDGE_STATE: 364,
-} as const;
-
-export type MessageType = (typeof MESSAGE_TYPES)[keyof typeof MESSAGE_TYPES];
+/**
+ * Home data from bridge
+ */
+export interface HomeData {
+  name?: string;
+  [key: string]: unknown;
+}
 
 // =============================================================================
 // Event Types
@@ -220,11 +229,11 @@ export type MessageType = (typeof MESSAGE_TYPES)[keyof typeof MESSAGE_TYPES];
  * All bridge events
  */
 export interface BridgeEvents extends ConnectionEvents {
-  deviceStateChange: [deviceId: string, state: DeviceState];
-  roomStateChange: [roomId: string, state: RoomState];
-  devicesDiscovered: [devices: XComfortDeviceData[]];
-  roomsDiscovered: [rooms: XComfortRoomData[]];
-  scenesDiscovered: [scenes: XComfortSceneData[]];
+  deviceStateChange: [deviceId: string, state: DeviceStateUpdate];
+  roomStateChange: [roomId: string, state: RoomStateUpdate];
+  devicesDiscovered: [devices: XComfortDevice[]];
+  roomsDiscovered: [rooms: XComfortRoom[]];
+  scenesDiscovered: [scenes: XComfortScene[]];
 }
 
 // =============================================================================
@@ -247,7 +256,7 @@ export type StateListener<T> = (id: string, state: T) => void;
 export type EventListener<T extends unknown[]> = (...args: T) => void;
 
 // =============================================================================
-// Encryption Types
+// Encryption Configuration
 // =============================================================================
 
 /**

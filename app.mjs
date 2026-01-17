@@ -1,20 +1,20 @@
 import Homey from 'homey';
-import XComfortConnection from './lib/XComfortConnection.mjs';
+import { XComfortBridge } from './lib/connection/XComfortBridge.mjs';
 import XComfortSceneManager from './lib/XComfortSceneManager.mjs';
 
 class App extends Homey.App {
   async onInit() {
     this.log('xComfort Bridge app initialized');
-    
+
     // Initialize scene manager
     this.sceneManager = null;
-    
+
     // Initialize connection when settings are available
     await this.initConnection();
-    
+
     // Register Flow actions
     this.registerFlowActions();
-    
+
     // Listen for settings changes
     this.homey.settings.on('set', async (key) => {
       if (key === 'bridge_ip' || key === 'auth_key') {
@@ -26,89 +26,86 @@ class App extends Homey.App {
 
   async onUninit() {
     this.log('xComfort Bridge app shutting down');
-    
+
     // Clean up periodic refresh
     if (this.periodicRefreshInterval) {
       clearInterval(this.periodicRefreshInterval);
       this.periodicRefreshInterval = null;
     }
-    
+
     // Clean up pending refresh timeout
     if (this.pendingRefreshTimeout) {
       clearTimeout(this.pendingRefreshTimeout);
       this.pendingRefreshTimeout = null;
     }
-    
+
     // Clean up connection retry timeout
     if (this.connectionRetryTimeout) {
       clearTimeout(this.connectionRetryTimeout);
       this.connectionRetryTimeout = null;
     }
-    
+
     // Close connection if exists
-    if (this.connection) {
-      this.connection.cleanup();
-      this.connection = null;
+    if (this.xcomfort) {
+      this.xcomfort.cleanup();
+      this.xcomfort = null;
     }
   }
 
   async initConnection() {
     const bridgeIp = this.homey.settings.get('bridge_ip');
     const authKey = this.homey.settings.get('auth_key');
-    
+
     // Clean up existing periodic refresh
     if (this.periodicRefreshInterval) {
       clearInterval(this.periodicRefreshInterval);
       this.periodicRefreshInterval = null;
     }
-    
+
     // Cancel any pending connection retry
     if (this.connectionRetryTimeout) {
       clearTimeout(this.connectionRetryTimeout);
       this.connectionRetryTimeout = null;
     }
-    
-    // Reset initial refresh flag
-    this.initialRefreshDone = false;
-    
+
     if (bridgeIp && authKey) {
       this.log('Initializing xComfort connection to', bridgeIp);
       try {
         // Close existing connection if any
-        if (this.connection) {
+        if (this.xcomfort) {
           this.log('Closing existing connection');
-          this.connection.cleanup();
+          this.xcomfort.cleanup();
         }
-        
-        this.connection = new XComfortConnection(bridgeIp, authKey);
-        await this.connection.init();
+
+        this.xcomfort = new XComfortBridge(bridgeIp, authKey);
+        await this.xcomfort.init();
         this.log('xComfort connection initialized successfully');
-        
+
         // Initialize scene manager when connection is ready
-        this.sceneManager = new XComfortSceneManager(this.connection);
-        
+        this.sceneManager = new XComfortSceneManager(this.xcomfort);
+
         // Log discovered devices and rooms
-        const devices = this.connection.getDevices();
-        const rooms = this.connection.getRooms();
+        const devices = this.xcomfort.getDevices();
+        const rooms = this.xcomfort.getRooms();
         this.log(`Discovered ${devices.length} devices and ${rooms.length} rooms`);
-        
-        // Make connection available to drivers
+
+        // Make connection available to drivers via this.homey.app.xcomfort
         this.homey.app = this.homey.app || {};
-        this.homey.app.xcomfort = this.connection;
-        
+        this.homey.app.xcomfort = this.xcomfort;
+
         // Start periodic temperature refresh for all devices
         this.startPeriodicRefresh();
-        
+
       } catch (error) {
         this.error('Failed to initialize xComfort connection:', error.message);
-        this.connection = null;
-        
+        this.xcomfort = null;
+
         // Schedule retry for initial connection failure
         this.scheduleConnectionRetry();
       }
     } else {
       this.log('Bridge IP or auth key not configured yet');
-      this.connection = null;
+      this.xcomfort = null;
     }
   }
 
@@ -121,10 +118,10 @@ class App extends Homey.App {
     if (this.connectionRetryTimeout) {
       clearTimeout(this.connectionRetryTimeout);
     }
-    
+
     const retryDelay = 60000; // Retry every 60 seconds
     this.log(`Scheduling connection retry in ${retryDelay / 1000} seconds...`);
-    
+
     this.connectionRetryTimeout = setTimeout(async () => {
       this.connectionRetryTimeout = null;
       if (!this.isConnected()) {
@@ -135,12 +132,12 @@ class App extends Homey.App {
   }
 
   getConnection() {
-    return this.connection;
+    return this.xcomfort;
   }
 
   // Helper method for drivers to access connection
   isConnected() {
-    return this.connection && this.connection.connectionState === 'connected';
+    return this.xcomfort && this.xcomfort.isConnected;
   }
 
   // Debounced refresh method that devices can request
@@ -162,7 +159,7 @@ class App extends Homey.App {
       this.refreshAllDeviceData();
       this.pendingRefreshTimeout = null;
     }, 3000);
-    
+
     this.log('Device refresh requested - will execute in 3 seconds');
   }
 
@@ -171,7 +168,7 @@ class App extends Homey.App {
     setTimeout(() => {
       this.refreshAllDeviceData();
     }, 10000);
-    
+
     // Then refresh every 3 minutes for all devices
     this.periodicRefreshInterval = setInterval(() => {
       this.refreshAllDeviceData();
@@ -185,26 +182,7 @@ class App extends Homey.App {
 
     try {
       this.log('Performing periodic refresh for all device data...');
-      await this.connection.refreshAllDeviceInfo();
-      
-      // On the initial refresh, also send a gentle heartbeat to trigger room state updates
-      if (!this.initialRefreshDone) {
-        this.initialRefreshDone = true;
-        setTimeout(() => {
-          if (this.isConnected()) {
-            try {
-              this.connection.sendEncrypted({
-                type_int: 2,
-                mc: this.connection.nextMc(),
-                payload: {}
-              });
-              this.log('Sent heartbeat to trigger initial room state updates');
-            } catch (err) {
-              this.log('Initial heartbeat failed, room states will update on next interaction');
-            }
-          }
-        }, 2000);
-      }
+      await this.xcomfort.refreshAllDeviceInfo();
     } catch (error) {
       this.error('Periodic refresh failed:', error);
     }
