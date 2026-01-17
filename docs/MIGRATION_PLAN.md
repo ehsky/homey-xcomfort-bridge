@@ -279,13 +279,13 @@ git add -A && git commit -m "Phase 4: Complete TypeScript migration"
 
 ### Tasks
 
-- [ ] Add MessageHandler state update tests (type 310 payloads)
-- [ ] Add device discovery tests (type 300 payloads)
-- [ ] Add room discovery tests (type 300 payloads)
-- [ ] Add scene discovery tests (type 300 payloads)
-- [ ] Add driver pairing tests for room and dimming drivers
-- [ ] Add device capability update tests (onoff/dim/temperature)
-- [ ] Add room capability update tests (onoff/dim/power/contacts/presence)
+- [x] Add MessageHandler state update tests (type 310 payloads)
+- [x] Add device discovery tests (type 300 payloads)
+- [x] Add room discovery tests (type 300 payloads)
+- [x] Add scene discovery tests (type 300 payloads)
+- [x] Add driver pairing tests for room and dimming drivers
+- [x] Add device capability update tests (onoff/dim/temperature)
+- [x] Add room capability update tests (onoff/dim/power/contacts/presence)
 
 ### Test Criteria
 

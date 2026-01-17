@@ -10,8 +10,8 @@
     "start": "npm run build && homey app run",
     "dev": "npm run build && homey app run --clean",
     "validate": "npm run build && homey app validate",
-    "test": "npm run build && node --test --test-name-pattern=. .homeybuild/tests/",
-    "test:coverage": "npm run build && node --test --experimental-test-coverage --test-name-pattern=. .homeybuild/tests/",
+    "test": "npm run build && NODE_OPTIONS=--import=./tests/register-loader.mjs node --test --test-name-pattern=. .homeybuild/tests/*.test.mjs",
+    "test:coverage": "npm run build && NODE_OPTIONS=--import=./tests/register-loader.mjs node --test --experimental-test-coverage --test-name-pattern=. .homeybuild/tests/*.test.mjs",
     "check": "npm test && homey app validate",
     "clean": "rm -rf .homeybuild"
   },

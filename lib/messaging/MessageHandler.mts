@@ -142,6 +142,11 @@ export class MessageHandler {
     // Handle SET_ALL_DATA
     if (msg.type_int === MESSAGE_TYPES.SET_ALL_DATA) {
       console.log('[MessageHandler] Received SET_ALL_DATA');
+      console.log(
+        `[MessageHandler] SET_ALL_DATA PAYLOAD: ${JSON.stringify(
+          msg.payload
+        )}`
+      );
       this.processDeviceData(msg.payload as Record<string, unknown>);
       return true;
     }
