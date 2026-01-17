@@ -8,17 +8,13 @@
 
 ### 1.1 Problems Identified
 
-| Issue | Impact | Priority |
-|-------|--------|----------|
-| `XComfortConnection.js` is 1,035 lines with 8+ responsibilities | Hard to maintain, test, and extend | 🔴 Critical |
-| No listener cleanup on device deletion | Memory leaks over time | 🔴 High |
-| Duplicate dim value conversion logic | Code duplication, inconsistent behavior | 🟡 Medium |
-| Console.log scattered throughout | No log levels, hard to debug | 🟡 Medium |
-| CommonJS syntax (require/module.exports) | Not aligned with modern Homey SDK | 🟡 Medium |
-| No unit tests | Regression risk | 🟡 Medium |
-| No JSDoc for public APIs | Poor developer experience | 🟢 Low |
+| Issue | Impact | Priority | Status |
+|-------|--------|----------|--------|
+| No listener cleanup on device deletion | Memory leaks over time | 🔴 High | Partially addressed (cleanup still needed in drivers) |
+| Console.log scattered throughout | No log levels, hard to debug | 🟡 Medium | Ongoing |
+| No JSDoc for public APIs | Poor developer experience | 🟢 Low | Ongoing |
 
-### 1.2 Current File Structure (Post Phase 2)
+### 1.2 Current File Structure (Post Phase 5)
 
 ```
 lib/
@@ -43,6 +39,16 @@ drivers/
 └── xcomfort-room/
     ├── device.mts             # TypeScript source (builds to .mjs)
     └── driver.mts             # Room discovery
+
+tests/
+├── Drivers.test.mts           # Driver pairing + capability updates
+├── MessageHandler.test.mts    # SET_ALL_DATA / STATE_UPDATE payloads
+├── Crypto.test.mts            # Crypto module tests
+└── ValueConverters.test.mts   # Converter tests
+
+tests/homey-runtime.mjs        # Homey runtime shim for tests
+tests/homey-loader.mjs         # Loader for Homey module interception
+tests/register-loader.mjs      # Node register() loader wrapper
 
 app.mjs                        # JavaScript ESM entry point
 ```
