@@ -33,7 +33,7 @@ Suggested commit points:
 |-------|------|-----------|-----------|-------------|--------|
 | **0** | TypeScript infrastructure | No | Yes | 1-2 hours | ✅ Done |
 | **1** | ESM conversion + crypto extraction | Yes | Yes | 3-4 hours | ✅ Done |
-| **2** | Convert existing JS → TS (one file at a time) | No | Yes | 4-6 hours | |
+| **2** | Convert existing JS → TS (one file at a time) | No | Yes | 4-6 hours | ✅ Done |
 | **3** | Extract modules from XComfortConnection | No | Yes | 4-6 hours | |
 | **4** | Full TypeScript (remove all .js/.mjs) | Yes | Yes | 2-3 hours | |
 | **5** | Polish & P1/P2 features | No | Yes | Ongoing | |
@@ -147,25 +147,22 @@ git add -A && git commit -m "Phase 1: ESM conversion + crypto extraction"
 
 ---
 
-## Phase 2: Convert Library Files to TypeScript ⏳ IN PROGRESS
+## Phase 2: Convert Library Files to TypeScript ✅ COMPLETE
 
 **Goal:** Convert library files to TypeScript one at a time.
 
-> **Note:** Driver files (`device.mjs`, `driver.mjs`) require the Homey runtime module and cannot be independently compiled. They will be converted in Phase 4 using Homey CLI's TypeScript support.
+> **Discovery:** The Homey CLI does NOT compile `app.mts` or `app.ts` files - it only copies existing `.mjs` files. The app entry point must remain as JavaScript ESM for now.
 
-### Order of Conversion (library files first)
+### Order of Conversion (library files)
 
 1. [x] `lib/XComfortProtocol.mjs` → `lib/XComfortProtocol.mts` ✅
 2. [x] `lib/XComfortSceneManager.mjs` → `lib/XComfortSceneManager.mts` ✅
-3. [ ] `lib/XComfortConnection.mjs` → `lib/XComfortConnection.mts` (1035 lines - complex)
-4. [ ] `app.mjs` → `app.mts`
+3. [x] `lib/XComfortConnection.mjs` → `lib/XComfortConnection.mts` ✅ (1035 lines - fully typed)
 
-### Deferred to Phase 4 (requires Homey runtime)
+### Kept as JavaScript ESM (Homey CLI limitation)
 
-- `drivers/xcomfort-dimming-actuator/device.mjs`
-- `drivers/xcomfort-dimming-actuator/driver.mjs`
-- `drivers/xcomfort-room/device.mjs`
-- `drivers/xcomfort-room/driver.mjs`
+- `app.mjs` - Entry point (Homey CLI doesn't compile .mts app files)
+- Driver files - Require Homey runtime (will convert in Phase 4)
 
 ### Per-File Process
 
@@ -336,9 +333,9 @@ npm run clean
 | Phase 0 started | ✅ | Jan 2026 | - |
 | Phase 0 complete | ✅ | Jan 2026 | 5deed68 |
 | Phase 1 started | ✅ | Jan 2026 | - |
-| Phase 1 complete | ✅ | Jan 2026 | pending |
-| Phase 2 started | ⏳ | - | - |
-| Phase 2 complete | ⏳ | - | - |
+| Phase 1 complete | ✅ | Jan 2026 | 8b904e6 |
+| Phase 2 started | ✅ | Jan 2026 | 6de1025 |
+| Phase 2 complete | ✅ | Jan 2026 | pending |
 | Phase 3 started | ⏳ | - | - |
 | Phase 3 complete | ⏳ | - | - |
 | Phase 4 started | ⏳ | - | - |

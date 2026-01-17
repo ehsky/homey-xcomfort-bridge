@@ -18,14 +18,36 @@
 | No unit tests | Regression risk | 🟡 Medium |
 | No JSDoc for public APIs | Poor developer experience | 🟢 Low |
 
-### 1.2 Current File Structure
+### 1.2 Current File Structure (Post Phase 2)
 
 ```
 lib/
-├── XComfortConnection.js  (1,035 lines - handles everything)
-├── XComfortProtocol.js    (202 lines - constants only)
-└── XComfortSceneManager.js (100 lines - scene management)
+├── index.mts                  # Barrel exports
+├── types.mts                  # Shared TypeScript interfaces
+├── XComfortConnection.mts     # WebSocket connection handler (1035 lines - fully typed)
+├── XComfortProtocol.mts       # Protocol constants with 'as const'
+├── XComfortSceneManager.mts   # Scene management with interfaces
+├── crypto/
+│   ├── index.mts              # Crypto barrel exports
+│   ├── Encryption.mts         # AES-256-CBC encryption
+│   ├── Hash.mts               # SHA-256 auth hashing
+│   └── KeyExchange.mts        # RSA public key handling
+└── utils/
+    ├── index.mts              # Utils barrel exports
+    └── ValueConverters.mts    # Homey ↔ xComfort dim value conversion
+
+drivers/
+├── xcomfort-dimming-actuator/
+│   ├── device.mjs             # JavaScript ESM (Homey runtime)
+│   └── driver.mjs             # Device discovery
+└── xcomfort-room/
+    ├── device.mjs             # JavaScript ESM (Homey runtime)
+    └── driver.mjs             # Room discovery
+
+app.mjs                        # JavaScript ESM entry point
 ```
+
+**Note:** Driver files remain as JavaScript ESM because they require the Homey runtime module which is not available during independent TypeScript compilation. The library modules are fully typed TypeScript.
 
 ---
 
