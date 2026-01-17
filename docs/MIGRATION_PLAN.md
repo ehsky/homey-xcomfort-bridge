@@ -271,31 +271,27 @@ git add -A && git commit -m "Phase 4: Complete TypeScript migration"
 
 ---
 
-## Phase 5: Polish & P1/P2 Features
+## Phase 5: Test Coverage & Reliability
 
-**Goal:** Add improvements and nice-to-have features.
+**Goal:** Add targeted tests for the current implementation and lock in behavior.
 
-### P1 Features (Should Have)
+> **Final Phase:** Once Phase 5 is complete, the migration plan is considered done.
 
-- [ ] Add connection health monitoring
-- [ ] Implement proper reconnection backoff
-- [ ] Add settings validation
-- [ ] Improve error messages
-- [ ] Add driver pairing/state update tests (room + dimming)
+### Tasks
+
 - [ ] Add MessageHandler state update tests (type 310 payloads)
-
-### P2 Features (Nice to Have)
-
-- [ ] Add integration tests with mock bridge
-- [ ] Add performance logging
-- [ ] Generate API documentation
-- [ ] Add GitHub Actions CI
+- [ ] Add device discovery tests (type 300 payloads)
+- [ ] Add room discovery tests (type 300 payloads)
+- [ ] Add scene discovery tests (type 300 payloads)
+- [ ] Add driver pairing tests for room and dimming drivers
+- [ ] Add device capability update tests (onoff/dim/temperature)
+- [ ] Add room capability update tests (onoff/dim/power/contacts/presence)
 
 ### Test Criteria
 
 ```bash
-npm test           # >80% code coverage
-npm run validate   # Clean validation
+npm test           # All tests pass
+npm run validate   # Clean validation (images aside)
 ```
 
 ---
@@ -338,11 +334,13 @@ npm run clean
 | Phase 1 started | ✅ | Jan 2026 | - |
 | Phase 1 complete | ✅ | Jan 2026 | 8b904e6 |
 | Phase 2 started | ✅ | Jan 2026 | 6de1025 |
-| Phase 2 complete | ✅ | Jan 2026 | pending |
-| Phase 3 started | ⏳ | - | - |
-| Phase 3 complete | ⏳ | - | - |
+| Phase 2 complete | ✅ | Jan 2026 | 64c9560 |
+| Phase 3 started | ✅ | Jan 2026 | - |
+| Phase 3 complete | ✅ | Jan 2026 | abbcaad |
 | Phase 4 started | ✅ | Jan 2026 | - |
-| Phase 4 complete | ✅ | Jan 2026 | - |
+| Phase 4 complete | ✅ | Jan 2026 | 3a73801 |
+| Phase 5 started | ⏳ | - | - |
+| Phase 5 complete | ⏳ | - | - |
 | Ready for release | ⏳ | - | - |
 
 ---
