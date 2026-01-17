@@ -147,36 +147,43 @@ git add -A && git commit -m "Phase 1: ESM conversion + crypto extraction"
 
 ---
 
-## Phase 2: Convert Existing Files
+## Phase 2: Convert Library Files to TypeScript ⏳ IN PROGRESS
 
-**Goal:** Convert existing JS files to TypeScript one at a time.
+**Goal:** Convert library files to TypeScript one at a time.
 
-### Order of Conversion (lowest risk first)
+> **Note:** Driver files (`device.mjs`, `driver.mjs`) require the Homey runtime module and cannot be independently compiled. They will be converted in Phase 4 using Homey CLI's TypeScript support.
 
-1. [ ] `lib/XComfortProtocol.js` → `lib/protocol/constants.ts`
-2. [ ] `lib/XComfortSceneManager.js` → `lib/scenes/SceneManager.ts`
-3. [ ] `drivers/xcomfort-dimming-actuator/device.js` → `device.ts`
-4. [ ] `drivers/xcomfort-dimming-actuator/driver.js` → `driver.ts`
-5. [ ] `drivers/xcomfort-room/device.js` → `device.ts`
-6. [ ] `drivers/xcomfort-room/driver.js` → `driver.ts`
-7. [ ] `app.js` → `app.ts`
+### Order of Conversion (library files first)
+
+1. [x] `lib/XComfortProtocol.mjs` → `lib/XComfortProtocol.mts` ✅
+2. [x] `lib/XComfortSceneManager.mjs` → `lib/XComfortSceneManager.mts` ✅
+3. [ ] `lib/XComfortConnection.mjs` → `lib/XComfortConnection.mts` (1035 lines - complex)
+4. [ ] `app.mjs` → `app.mts`
+
+### Deferred to Phase 4 (requires Homey runtime)
+
+- `drivers/xcomfort-dimming-actuator/device.mjs`
+- `drivers/xcomfort-dimming-actuator/driver.mjs`
+- `drivers/xcomfort-room/device.mjs`
+- `drivers/xcomfort-room/driver.mjs`
 
 ### Per-File Process
 
-1. Rename `.js` → `.ts`
-2. Add type annotations
-3. Fix any TypeScript errors
-4. Run `npm run build`
-5. Test the app: `homey app run`
-6. Commit
+1. Create new `.mts` file with TypeScript code
+2. Add type annotations and interfaces
+3. Run `npm run build` - verify no errors
+4. Delete old `.mjs` file
+5. Run `npm test` - verify tests pass
+6. Run `homey app run` - verify app works
+7. Commit
 
 ### Test Criteria
 
 After each file conversion:
 ```bash
 npm run build      # No errors
+npm test           # All tests pass
 homey app run      # App works
-# Manual test: Specific feature related to converted file
 ```
 
 ### Commit Points
