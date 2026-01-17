@@ -2,8 +2,7 @@
 
 node_modules/
 
-# TypeScript build output
-dist/
+# TypeScript build output (Homey uses .homeybuild)
 *.tsbuildinfo
 
 # IDE

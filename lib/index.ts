@@ -48,5 +48,7 @@ export {
   clampXComfortDimValue,
 } from './utils/index.js';
 
+// Crypto
+export * from './crypto/index.js';
 // TODO: Export XComfortBridge when implemented
 // export { XComfortBridge } from './connection/index.js';

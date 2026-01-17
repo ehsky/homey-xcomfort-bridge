@@ -11,9 +11,10 @@
     "start": "npm run build && homey app run",
     "dev": "npm run build && homey app run --clean",
     "validate": "npm run build && homey app validate",
-    "test": "npm run build && node --test --test-name-pattern=. dist/tests/",
-    "test:coverage": "npm run build && node --test --experimental-test-coverage --test-name-pattern=. dist/tests/",
-    "clean": "rm -rf dist"
+    "test": "npm run build && node --test --test-name-pattern=. .homeybuild/tests/",
+    "test:coverage": "npm run build && node --test --experimental-test-coverage --test-name-pattern=. .homeybuild/tests/",
+    "check": "npm test && homey app validate",
+    "clean": "rm -rf .homeybuild"
   },
   "keywords": ["xcomfort", "bridge", "dimming", "room", "automation", "homey"],
   "author": "Erlend Hansen",

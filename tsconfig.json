@@ -5,7 +5,7 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "lib": ["ES2022"],
-    "outDir": "./dist",
+    "outDir": "./.homeybuild",
     "rootDir": "./",
     
     // Strict type checking
@@ -47,6 +47,6 @@
   ],
   "exclude": [
     "node_modules",
-    "dist"
+    ".homeybuild"
   ]
 }
