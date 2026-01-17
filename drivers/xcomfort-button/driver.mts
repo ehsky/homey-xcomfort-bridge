@@ -23,6 +23,7 @@ class XComfortButtonDriver extends Homey.Driver {
 
     const connection = app.getConnection();
     const devices = connection.getDevices();
+    const rooms = connection.getRooms();
 
     this.log(`Found ${devices.length} total devices from xComfort bridge`);
 
@@ -32,7 +33,20 @@ class XComfortButtonDriver extends Homey.Driver {
 
     this.log(`Found ${inputDevices.length} input devices (devType=220):`);
     inputDevices.forEach((device: XComfortDevice) => {
+      const deviceId = String(device.deviceId);
+      const associatedRooms = rooms.filter((room) =>
+        Array.isArray(room.devices) && room.devices.map(String).includes(deviceId)
+      );
+
+      this.log(`Full device descriptor: ${JSON.stringify(device)}`);
       this.log(`  - ${device.name} (ID: ${device.deviceId}, devType: ${device.devType})`);
+      if (associatedRooms.length > 0) {
+        associatedRooms.forEach((room) => {
+          this.log(`    Room: ${room.name} (ID: ${room.roomId})`);
+        });
+      } else {
+        this.log('    Room: not associated');
+      }
     });
 
     return inputDevices.map((device: XComfortDevice) => ({
