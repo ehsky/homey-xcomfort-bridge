@@ -169,6 +169,8 @@ This project was greatly inspired by and built upon the work from [jankrib/xcomf
 
 Special thanks to [@jankrib](https://github.com/jankrib) for the  Python implementation that served as a reference for understanding the xComfort Bridge communication protocol.
 
+Thanks to [MikeTango](https://community.homey.app/u/miketango/summary) for providing valuable feedback and testing of the connector.
+
 ## References
 
 - [Homey Apps SDK Documentation](https://apps.developer.homey.app/)
