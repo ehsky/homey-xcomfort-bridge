@@ -19,6 +19,22 @@ import type { ConnectionState, EncryptionContext } from '../types.mjs';
 export type { ConnectionState, EncryptionContext };
 
 // ============================================================================
+// Retry Configuration
+// ============================================================================
+
+export interface RetryConfig {
+  maxRetries: number;
+  ackTimeout: number; // ms to wait for ACK before retry
+  retryDelay: number; // ms between retries
+}
+
+export const DEFAULT_RETRY_CONFIG: RetryConfig = {
+  maxRetries: 3,
+  ackTimeout: 5000, // 5 seconds
+  retryDelay: 500,  // 500ms between retries
+};
+
+// ============================================================================
 // Module-specific Types (callbacks)
 // ============================================================================
 
@@ -51,8 +67,19 @@ export class ConnectionManager {
 
   private base64regex: RegExp = /^[A-Za-z0-9+/=]+$/;
 
+  // Retry mechanism: Map of mc -> resolve function for pending ACKs
+  private pendingAcks: Map<number, (acked: boolean) => void> = new Map();
+  private retryConfig: RetryConfig = DEFAULT_RETRY_CONFIG;
+
   constructor(bridgeIp: string) {
     this.bridgeIp = bridgeIp;
+  }
+
+  /**
+   * Configure retry behavior
+   */
+  setRetryConfig(config: Partial<RetryConfig>): void {
+    this.retryConfig = { ...this.retryConfig, ...config };
   }
 
   /**
@@ -270,6 +297,84 @@ export class ConnectionManager {
         reject(error);
       }
     });
+  }
+
+  /**
+   * Send encrypted message with retry on failure or ACK timeout.
+   * Retries up to maxRetries times if ACK is not received within ackTimeout.
+   */
+  async sendWithRetry(jsonObj: Record<string, unknown>): Promise<boolean> {
+    const mc = jsonObj.mc as number | undefined;
+
+    for (let attempt = 0; attempt <= this.retryConfig.maxRetries; attempt++) {
+      if (attempt > 0) {
+        console.log(`[ConnectionManager] Retry ${attempt}/${this.retryConfig.maxRetries} for mc=${mc}`);
+        await this.delay(this.retryConfig.retryDelay);
+      }
+
+      if (!this.isConnected()) {
+        console.error(`[ConnectionManager] Cannot send mc=${mc} - not connected`);
+        continue;
+      }
+
+      const sent = this.sendEncrypted(jsonObj);
+      if (!sent) continue;
+
+      // If no mc, no ACK expected - return success
+      if (mc === undefined) return true;
+
+      // Wait for ACK with timeout
+      const acked = await this.waitForAck(mc, this.retryConfig.ackTimeout);
+      if (acked) return true;
+
+      console.log(`[ConnectionManager] ACK timeout for mc=${mc}`);
+    }
+
+    console.error(`[ConnectionManager] Failed to send mc=${mc} after ${this.retryConfig.maxRetries} retries`);
+    return false;
+  }
+
+  /**
+   * Wait for ACK for a specific message counter
+   */
+  private waitForAck(mc: number, timeout: number): Promise<boolean> {
+    return new Promise((resolve) => {
+      const timeoutId = setTimeout(() => {
+        this.pendingAcks.delete(mc);
+        resolve(false);
+      }, timeout);
+
+      this.pendingAcks.set(mc, (acked: boolean) => {
+        clearTimeout(timeoutId);
+        resolve(acked);
+      });
+    });
+  }
+
+  /**
+   * Called when ACK is received - resolves the pending promise
+   */
+  handleAck(ref: number): void {
+    const resolve = this.pendingAcks.get(ref);
+    if (resolve) {
+      this.pendingAcks.delete(ref);
+      resolve(true);
+    }
+  }
+
+  /**
+   * Called when NACK is received - resolves as failed to trigger retry
+   */
+  handleNack(ref: number): void {
+    const resolve = this.pendingAcks.get(ref);
+    if (resolve) {
+      this.pendingAcks.delete(ref);
+      resolve(false);
+    }
+  }
+
+  private delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
   /**

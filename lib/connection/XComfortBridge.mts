@@ -51,6 +51,10 @@ export class XComfortBridge {
   private connectionTimeout: ReturnType<typeof setTimeout> | null = null;
   private connectionCheckInterval: ReturnType<typeof setInterval> | null = null;
 
+  // Reconnection state
+  private reconnectAttempt: number = 0;
+  private lastCloseCode: number = 0;
+
   constructor(bridgeIp: string, authKey: string) {
     this.bridgeIp = bridgeIp;
     this.authKey = authKey;
@@ -83,6 +87,7 @@ export class XComfortBridge {
 
     this.connectionManager.setOnClose((code, reason, shouldReconnect) => {
       this.connectionState = 'disconnected';
+      this.lastCloseCode = code;
       console.log(`[XComfortBridge] Connection closed: ${code} - ${reason}`);
 
       if (shouldReconnect) {
@@ -131,6 +136,15 @@ export class XComfortBridge {
     this.messageHandler.setOnScenesReceived((scenes) => {
       this.detailedScenes = scenes;
       console.log(`[XComfortBridge] Stored ${scenes.length} scenes`);
+    });
+
+    // Wire up ACK/NACK handling for retry mechanism
+    this.messageHandler.setOnAckReceived((ref) => {
+      this.connectionManager.handleAck(ref);
+    });
+
+    this.messageHandler.setOnNackReceived((ref) => {
+      this.connectionManager.handleNack(ref);
     });
   }
 
@@ -189,14 +203,32 @@ export class XComfortBridge {
     if (this.connectionManager.isReconnecting()) return;
 
     this.connectionManager.setReconnecting(true);
-    console.log('[XComfortBridge] Scheduling reconnect...');
+    this.reconnectAttempt++;
+
+    // Calculate delay: immediate for first 1006, then exponential backoff
+    // Base delay: 500ms for 1006, 5000ms for others
+    // Max delay: 60 seconds
+    const baseDelay = this.lastCloseCode === 1006 ? 500 : PROTOCOL_CONFIG.TIMEOUTS.RECONNECT_DELAY;
+    const delay = Math.min(
+      baseDelay * Math.pow(2, Math.max(0, this.reconnectAttempt - 1)),
+      60000
+    );
+
+    console.log(`[XComfortBridge] Scheduling reconnect in ${delay}ms (attempt ${this.reconnectAttempt}, code ${this.lastCloseCode})`);
 
     setTimeout(() => {
       this.connectionManager.setReconnecting(false);
-      this.connect().catch((err) => {
-        console.error(`[XComfortBridge] Reconnection failed: ${err.message}`);
-      });
-    }, PROTOCOL_CONFIG.TIMEOUTS.RECONNECT_DELAY);
+      this.connect()
+        .then(() => {
+          // Reset attempt counter on successful connection
+          this.reconnectAttempt = 0;
+        })
+        .catch((err) => {
+          console.error(`[XComfortBridge] Reconnection failed: ${err.message}`);
+          // Schedule another attempt
+          this.scheduleReconnect();
+        });
+    }, delay);
   }
 
   private handleRawMessage(data: Buffer, timestamp: number): void {
@@ -300,7 +332,7 @@ export class XComfortBridge {
   async switchDevice(deviceId: string, switchState: boolean): Promise<boolean> {
     this.requireConnection();
 
-    return this.connectionManager.sendEncrypted({
+    return this.connectionManager.sendWithRetry({
       type_int: MESSAGE_TYPES.DEVICE_SWITCH,
       mc: this.connectionManager.nextMc(),
       payload: { deviceId, switch: switchState },
@@ -315,7 +347,7 @@ export class XComfortBridge {
       Math.min(PROTOCOL_CONFIG.LIMITS.DIM_MAX, dimmValue)
     );
 
-    return this.connectionManager.sendEncrypted({
+    return this.connectionManager.sendWithRetry({
       type_int: MESSAGE_TYPES.DEVICE_DIM,
       mc: this.connectionManager.nextMc(),
       payload: { deviceId, dimmvalue: dimmValue },
@@ -330,7 +362,7 @@ export class XComfortBridge {
     this.requireConnection();
 
     if (action === 'switch') {
-      return this.connectionManager.sendEncrypted({
+      return this.connectionManager.sendWithRetry({
         type_int: MESSAGE_TYPES.ROOM_SWITCH,
         mc: this.connectionManager.nextMc(),
         payload: { roomId, switch: value },
@@ -340,7 +372,7 @@ export class XComfortBridge {
         PROTOCOL_CONFIG.LIMITS.DIM_MIN,
         Math.min(PROTOCOL_CONFIG.LIMITS.DIM_MAX, value as number)
       );
-      return this.connectionManager.sendEncrypted({
+      return this.connectionManager.sendWithRetry({
         type_int: MESSAGE_TYPES.ROOM_DIM,
         mc: this.connectionManager.nextMc(),
         payload: { roomId, dimmvalue: dimmValue },
@@ -353,7 +385,7 @@ export class XComfortBridge {
   async activateScene(sceneId: number): Promise<boolean> {
     this.requireConnection();
 
-    return this.connectionManager.sendEncrypted({
+    return this.connectionManager.sendWithRetry({
       type_int: MESSAGE_TYPES.ACTIVATE_SCENE,
       mc: this.connectionManager.nextMc(),
       payload: { sceneId },

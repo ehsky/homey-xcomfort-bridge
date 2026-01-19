@@ -33,6 +33,12 @@ export type OnDeviceListCompleteFn = () => void;
 /** Callback to store scenes */
 export type OnScenesReceivedFn = (scenes: XComfortScene[]) => void;
 
+/** Callback when ACK received */
+export type OnAckReceivedFn = (ref: number) => void;
+
+/** Callback when NACK received */
+export type OnNackReceivedFn = (ref: number) => void;
+
 // ============================================================================
 // MessageHandler Class
 // ============================================================================
@@ -44,6 +50,8 @@ export class MessageHandler {
   private homeData: HomeData | null = null;
   private onDeviceListComplete?: OnDeviceListCompleteFn;
   private onScenesReceived?: OnScenesReceivedFn;
+  private onAckReceived?: OnAckReceivedFn;
+  private onNackReceived?: OnNackReceivedFn;
 
   constructor(
     deviceStateManager: DeviceStateManager,
@@ -65,6 +73,20 @@ export class MessageHandler {
    */
   setOnScenesReceived(callback: OnScenesReceivedFn): void {
     this.onScenesReceived = callback;
+  }
+
+  /**
+   * Set callback for when ACK is received (for retry mechanism)
+   */
+  setOnAckReceived(callback: OnAckReceivedFn): void {
+    this.onAckReceived = callback;
+  }
+
+  /**
+   * Set callback for when NACK is received (for retry mechanism)
+   */
+  setOnNackReceived(callback: OnNackReceivedFn): void {
+    this.onNackReceived = callback;
   }
 
   /**
@@ -98,6 +120,7 @@ export class MessageHandler {
       if (msg.ref) {
         console.log(`[MessageHandler] Received ACK for message ref: ${msg.ref}`);
         this.clearAck(msg.ref);
+        this.onAckReceived?.(msg.ref);
       }
       return true;
     }
@@ -107,6 +130,9 @@ export class MessageHandler {
       console.error(`[MessageHandler] Received NACK for message ref: ${msg.ref}`);
       if (msg.payload) {
         console.error(`[MessageHandler] NACK details:`, JSON.stringify(msg.payload));
+      }
+      if (msg.ref) {
+        this.onNackReceived?.(msg.ref);
       }
       return true;
     }
